@@ -9,8 +9,22 @@
         <h1 class="h3 fw-bold mb-1">Kanaly tekstowe</h1>
         <p class="text-secondary mb-0">Tworz pokoje, dolaczaj do rozmow i sprawdzaj historie wiadomosci.</p>
     </div>
-    <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Nowy kanal</a>
+    {% if request.user.is_blocked %}
+        <button class="btn btn-outline-secondary" type="button" disabled>Nowy kanal</button>
+    {% else %}
+        <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Nowy kanal</a>
+    {% endif %}
 </div>
+
+{% if request.user.is_blocked %}
+    <div class="blocked-notice mb-4">
+        <strong>Konto zablokowane</strong>
+        <p class="mb-0">
+            Mozesz przegladac dostepne kanaly, ale tworzenie nowych kanalow i dolaczanie
+            do kolejnych rozmow jest wylaczone.
+        </p>
+    </div>
+{% endif %}
 
 <div class="row g-3">
     {% for channel in channels %}
@@ -30,6 +44,8 @@
 
                 {% if channel.id in joined_channel_ids %}
                     <a href="{{ channel.get_absolute_url }}" class="btn btn-outline-light w-100">Otworz</a>
+                {% elif request.user.is_blocked %}
+                    <button class="btn btn-outline-secondary w-100" type="button" disabled>Tylko podglad</button>
                 {% else %}
                     <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark w-100">Dolacz</a>
                 {% endif %}
@@ -39,8 +55,12 @@
         <div class="col-12">
             <div class="auth-card text-center">
                 <h2 class="h4 fw-bold mb-2">Nie ma jeszcze kanalow</h2>
-                <p class="text-secondary mb-4">Utworz pierwszy kanal tekstowy do testow.</p>
-                <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Utworz kanal</a>
+                {% if request.user.is_blocked %}
+                    <p class="text-secondary mb-0">Zablokowane konto nie moze utworzyc pierwszego kanalu.</p>
+                {% else %}
+                    <p class="text-secondary mb-4">Utworz pierwszy kanal tekstowy do testow.</p>
+                    <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Utworz kanal</a>
+                {% endif %}
             </div>
         </div>
     {% endfor %}

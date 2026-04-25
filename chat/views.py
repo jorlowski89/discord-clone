@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.decorators import unblocked_required
 from .forms import ChannelForm, MessageForm
 from .models import Channel
 
@@ -21,6 +22,7 @@ def channel_list(request):
 
 
 @login_required
+@unblocked_required
 def channel_create(request):
     if request.method == "POST":
         form = ChannelForm(request.POST)
@@ -38,6 +40,7 @@ def channel_create(request):
 
 
 @login_required
+@unblocked_required
 def channel_join(request, slug):
     channel = get_object_or_404(Channel, slug=slug)
     channel.members.add(request.user)

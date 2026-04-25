@@ -3,12 +3,60 @@
 {% block title %}Administrator | PyCord{% endblock %}
 
 {% block content %}
-<div class="auth-card">
-    <span class="badge text-bg-danger mb-3">Administrator</span>
-    <h1 class="h3 fw-bold mb-3">Centrum kontroli</h1>
-    <p class="text-secondary mb-0">
-        Ten widok jest dostepny wylacznie dla administratora.
-        Docelowo trafia tu zarzadzanie kanalami, rolami i kontami uzytkownikow.
-    </p>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge text-bg-danger mb-2">Administrator</span>
+        <h1 class="h3 fw-bold mb-1">Centrum kontroli</h1>
+        <p class="text-secondary mb-0">Role i dostep uzytkownikow.</p>
+    </div>
 </div>
+
+<section class="panel-section">
+    <h2 class="h5 fw-bold mb-3">Role uzytkownikow</h2>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0 admin-table">
+            <thead>
+                <tr>
+                    <th>Uzytkownik</th>
+                    <th>Status</th>
+                    <th>Rola</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>
+                            <strong>{{ user.username }}</strong>
+                            <div class="text-secondary small">{{ user.email }}</div>
+                        </td>
+                        <td>
+                            {% if user.is_blocked %}
+                                <span class="badge text-bg-warning text-dark">zablokowany</span>
+                            {% else %}
+                                <span class="badge text-bg-success">aktywny</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form class="role-form d-flex gap-2" method="post" action="{% url 'update_user_role' user.id %}">
+                                {% csrf_token %}
+                                <select class="form-select form-select-sm" name="role">
+                                    {% for role_value, role_label in role_choices %}
+                                        <option value="{{ role_value }}" {% if user.role == role_value %}selected{% endif %}>
+                                            {{ role_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-sm btn-outline-info" type="submit">Zapisz</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-secondary">Brak uzytkownikow.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}

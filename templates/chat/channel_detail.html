@@ -17,8 +17,14 @@
         {% if not is_member %}
             <div class="empty-chat">
                 <h2 class="h4 fw-bold mb-2">Dolacz do kanalu</h2>
-                <p class="text-secondary mb-4">Historia wiadomosci jest dostepna po dolaczeniu.</p>
-                <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark">Dolacz</a>
+                {% if request.user.is_blocked %}
+                    <p class="text-secondary mb-0">
+                        Zablokowane konto nie moze dolaczac do nowych kanalow.
+                    </p>
+                {% else %}
+                    <p class="text-secondary mb-4">Historia wiadomosci jest dostepna po dolaczeniu.</p>
+                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark">Dolacz</a>
+                {% endif %}
             </div>
         {% else %}
             <div class="message-list">
@@ -35,6 +41,13 @@
                             <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
                                 <strong>{{ message.author.username }}</strong>
                                 <span class="text-secondary small">{{ message.created_at|date:"d.m.Y H:i" }}</span>
+                                {% if request.user.has_moderation_access %}
+                                    <form class="ms-auto" method="post" action="{% url 'delete_message' message.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ channel.get_absolute_url }}">
+                                        <button class="message-delete-btn" type="submit">Usun</button>
+                                    </form>
+                                {% endif %}
                             </div>
                             {% if message.content %}
                                 <p class="mb-2">{{ message.content|linebreaksbr }}</p>
@@ -57,31 +70,42 @@
                 {% endfor %}
             </div>
 
-            <form class="message-form" method="post" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                {% for error in form.non_field_errors %}
-                    <div class="alert alert-danger">{{ error }}</div>
-                {% endfor %}
-                <div class="mb-3">
-                    {{ form.content }}
-                    {% for error in form.content.errors %}
-                        <div class="text-danger small mt-1">{{ error }}</div>
+            {% if request.user.is_blocked %}
+                <div class="message-form">
+                    <div class="blocked-notice mb-0">
+                        <strong>Wysylanie wiadomosci jest zablokowane</strong>
+                        <p class="mb-0">
+                            Mozesz czytac kanal, ale moderator ograniczyl mozliwosc pisania z tego konta.
+                        </p>
+                    </div>
+                </div>
+            {% else %}
+                <form class="message-form" method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">{{ error }}</div>
                     {% endfor %}
-                </div>
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
-                        {{ form.image }}
+                    <div class="mb-3">
+                        {{ form.content }}
+                        {% for error in form.content.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
                     </div>
-                    <div class="col-md-5">
-                        <label class="form-label small" for="{{ form.audio.id_for_label }}">Audio</label>
-                        {{ form.audio }}
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
+                            {{ form.image }}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small" for="{{ form.audio.id_for_label }}">Audio</label>
+                            {{ form.audio }}
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            {% endif %}
         {% endif %}
     </section>
 </div>

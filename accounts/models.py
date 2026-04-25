@@ -21,6 +21,13 @@ class User(AbstractUser):
 
     REQUIRED_FIELDS = ["email"]
 
+    @property
+    def has_admin_access(self) -> bool:
+        return self.is_superuser or self.role == UserRole.ADMIN
+
+    @property
+    def has_moderation_access(self) -> bool:
+        return self.has_admin_access or self.role == UserRole.MODERATOR
+
     def __str__(self) -> str:
         return self.username
-

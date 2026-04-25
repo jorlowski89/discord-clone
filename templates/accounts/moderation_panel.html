@@ -3,13 +3,122 @@
 {% block title %}Moderacja | PyCord{% endblock %}
 
 {% block content %}
-<div class="auth-card">
-    <span class="badge text-bg-warning mb-3">Moderator+</span>
-    <h1 class="h3 fw-bold mb-3">Panel moderacji</h1>
-    <p class="text-secondary mb-0">
-        Ten widok jest dostepny tylko dla moderatora i administratora.
-        W nastepnym etapie podepniemy tu usuwanie wiadomosci i blokowanie uzytkownikow.
-    </p>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge text-bg-warning mb-2">Moderator+</span>
+        <h1 class="h3 fw-bold mb-1">Panel moderacji</h1>
+        <p class="text-secondary mb-0">Blokowanie uzytkownikow oraz porzadkowanie wiadomosci i kanalow.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <section class="panel-section">
+            <h2 class="h5 fw-bold mb-3">Uzytkownicy</h2>
+            <div class="stack-list">
+                {% for user in users %}
+                    <div class="stack-item">
+                        <div>
+                            <strong>{{ user.username }}</strong>
+                            <div class="text-secondary small">
+                                {{ user.get_role_display }} &middot;
+                                {% if user.is_blocked %}zablokowany{% else %}aktywny{% endif %}
+                            </div>
+                        </div>
+
+                        {% if user != request.user %}
+                            {% if request.user.has_admin_access or user.role == "user" %}
+                                <form method="post" action="{% url 'toggle_user_block' user.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm {% if user.is_blocked %}btn-outline-info{% else %}btn-outline-warning{% endif %}" type="submit">
+                                        {% if user.is_blocked %}Odblokuj{% else %}Zablokuj{% endif %}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-secondary" type="button" disabled>Chroniony</button>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge text-bg-dark border border-info-subtle">Ty</span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="text-secondary mb-0">Brak uzytkownikow.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    {% if request.user.has_admin_access %}
+        <div class="col-lg-7">
+            <section class="panel-section">
+                <h2 class="h5 fw-bold mb-3">Kanaly</h2>
+                <div class="stack-list">
+                    {% for channel in channels %}
+                        <div class="stack-item">
+                            <div>
+                                <strong># {{ channel.name }}</strong>
+                                <div class="text-secondary small">
+                                    Utworzyl: {{ channel.created_by|default:"system" }} &middot; {{ channel.members.count }} osob
+                                </div>
+                            </div>
+                            <form method="post" action="{% url 'delete_channel' channel.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Usun kanal</button>
+                            </form>
+                        </div>
+                    {% empty %}
+                        <p class="text-secondary mb-0">Brak kanalow.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    {% endif %}
+
+    <div class="col-12">
+        <section class="panel-section">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <h2 class="h5 fw-bold mb-0">Wiadomosci</h2>
+                <form class="moderation-filters" method="get">
+                    <select class="form-select form-select-sm" name="user">
+                        <option value="">Wszyscy uzytkownicy</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if selected_user_id == user.id|stringformat:"s" %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-select form-select-sm" name="channel">
+                        <option value="">Wszystkie kanaly</option>
+                        {% for channel in channels %}
+                            <option value="{{ channel.id }}" {% if selected_channel_id == channel.id|stringformat:"s" %}selected{% endif %}>
+                                # {{ channel.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-info" type="submit">Filtruj</button>
+                    <a class="btn btn-sm btn-outline-light" href="{% url 'moderation_panel' %}">Wyczysc</a>
+                </form>
+            </div>
+            <div class="stack-list">
+                {% for message in messages_list %}
+                    <div class="stack-item align-items-start">
+                        <div class="min-w-0">
+                            <div class="small text-secondary">
+                                #{{ message.channel.name }} &middot; {{ message.author.username }} &middot; {{ message.created_at|date:"d.m.Y H:i" }}
+                            </div>
+                            <div class="moderation-message-content">{{ message.content|default:"[plik multimedialny]" }}</div>
+                        </div>
+                        <form method="post" action="{% url 'delete_message' message.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Usun</button>
+                        </form>
+                    </div>
+                {% empty %}
+                    <p class="text-secondary mb-0">Brak wiadomosci dla wybranych filtrow.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
 </div>
 {% endblock %}
-

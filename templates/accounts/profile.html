@@ -15,21 +15,42 @@
                     {% if request.user.is_blocked %}Zablokowany{% else %}Aktywny{% endif %}
                 </span>
             </div>
-            <form method="post" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                        {% for error in field.errors %}
-                            <div class="text-danger small mt-1">{{ error }}</div>
-                        {% endfor %}
+            {% if request.user.is_blocked %}
+                <div class="blocked-notice mb-4">
+                    <strong>Konto zablokowane</strong>
+                    <p class="mb-0">
+                        Moderator ograniczyl Twoje konto. Mozesz nadal przegladac kanaly
+                        oraz profil, ale dodawanie, edycja i usuwanie tresci sa wylaczone.
+                    </p>
+                </div>
+            {% endif %}
+            {% if request.user.is_blocked %}
+                <div class="profile-readonly">
+                    <div>
+                        <span class="text-secondary small d-block">Email</span>
+                        <strong>{{ request.user.email }}</strong>
                     </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-info text-dark">Zapisz zmiany</button>
-            </form>
+                    <div>
+                        <span class="text-secondary small d-block">Opis</span>
+                        <p class="mb-0">{{ request.user.bio|default:"Brak opisu" }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-info text-dark">Zapisz zmiany</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 </div>
 {% endblock %}
-
