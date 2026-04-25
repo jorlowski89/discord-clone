@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PyCord{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg border-bottom border-secondary-subtle app-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">PyCord</a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.role == "admin" %}
+                        <a class="btn btn-outline-danger btn-sm" href="{% url 'admin_panel' %}">Admin</a>
+                    {% endif %}
+                    {% if request.user.role == "admin" or request.user.role == "moderator" %}
+                        <a class="btn btn-outline-warning btn-sm" href="{% url 'moderation_panel' %}">Moderacja</a>
+                    {% endif %}
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'profile' %}">Profil</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-warning btn-sm" type="submit">Wyloguj</button>
+                    </form>
+                {% else %}
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">Logowanie</a>
+                    <a class="btn btn-info btn-sm text-dark" href="{% url 'register' %}">Rejestracja</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <main class="container py-4">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

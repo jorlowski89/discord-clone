@@ -1,0 +1,80 @@
+:root {
+    --app-bg: #0d1117;
+    --app-panel: rgba(20, 26, 38, 0.92);
+    --app-panel-soft: rgba(33, 42, 57, 0.85);
+    --app-border: rgba(129, 187, 255, 0.2);
+    --app-text: #f8fafc;
+    --app-muted: #9db0c7;
+    --app-accent: #66d9ef;
+    --app-accent-2: #ffb84d;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(102, 217, 239, 0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255, 184, 77, 0.14), transparent 28%),
+        linear-gradient(135deg, #0a0e14 0%, #121826 40%, #0f141f 100%);
+    color: var(--app-text);
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.app-navbar {
+    background: rgba(8, 12, 19, 0.78);
+    backdrop-filter: blur(18px);
+}
+
+.hero-card,
+.auth-card,
+.glass-panel {
+    background: var(--app-panel);
+    border: 1px solid var(--app-border);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.hero-card,
+.auth-card {
+    padding: 2rem;
+}
+
+.glass-panel {
+    padding: 1.5rem;
+    background: var(--app-panel-soft);
+}
+
+.message-bubble {
+    padding: 1rem;
+    border-radius: 18px;
+    background: rgba(102, 217, 239, 0.08);
+    border: 1px solid rgba(102, 217, 239, 0.15);
+}
+
+.message-bubble.muted {
+    background: rgba(255, 184, 77, 0.08);
+    border-color: rgba(255, 184, 77, 0.18);
+}
+
+.form-control,
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--app-text);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+.form-control::placeholder {
+    color: #7f8ea3;
+}
+
+.text-secondary,
+.text-secondary-emphasis {
+    color: var(--app-muted) !important;
+}
+
+@media (max-width: 767px) {
+    .hero-card,
+    .auth-card {
+        padding: 1.5rem;
+    }
+}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Profil | PyCord{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="auth-card">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">Twoj profil</h1>
+                    <p class="text-secondary mb-0">Rola: {{ request.user.get_role_display }}</p>
+                </div>
+                <span class="badge rounded-pill text-bg-dark border border-info-subtle">
+                    {% if request.user.is_blocked %}Zablokowany{% else %}Aktywny{% endif %}
+                </span>
+            </div>
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-info text-dark">Zapisz zmiany</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
