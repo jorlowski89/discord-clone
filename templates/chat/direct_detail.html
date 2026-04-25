@@ -80,30 +80,69 @@
                         <div class="text-danger small mt-1">{{ error }}</div>
                     {% endfor %}
                 </div>
-                <div class="row g-2 align-items-end">
-                    <div class="col-lg-4">
-                        <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
-                        {{ form.image }}
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-label small" for="{{ form.audio.id_for_label }}">Glosowka</label>
+                <div class="composer-tools">
+                    <div class="composer-actions">
+                        <div class="image-picker" data-image-picker>
+                            {{ form.image }}
+                            <label class="icon-btn" for="{{ form.image.id_for_label }}" title="Dodaj obraz" aria-label="Dodaj obraz">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                    <circle cx="8" cy="10" r="1.5"></circle>
+                                    <path d="m21 15-5-5L5 19"></path>
+                                </svg>
+                            </label>
+                            <span class="composer-status d-none" data-image-status></span>
+                        </div>
                         <div class="voice-recorder" data-voice-recorder>
                             {{ form.audio }}
-                            <div class="voice-recorder-controls">
-                                <button class="btn btn-sm btn-outline-info" type="button" data-record-start>Nagraj</button>
-                                <button class="btn btn-sm btn-outline-warning" type="button" data-record-stop disabled>Zatrzymaj</button>
-                                <button class="btn btn-sm btn-outline-light" type="button" data-record-clear disabled>Usun</button>
+                            <button class="icon-btn" type="button" data-record-start title="Nagraj glosowke" aria-label="Nagraj glosowke">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <path d="M12 19v3"></path>
+                                </svg>
+                            </button>
+                            <button class="icon-btn warning d-none" type="button" data-record-stop disabled title="Zatrzymaj nagrywanie" aria-label="Zatrzymaj nagrywanie">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="7" y="7" width="10" height="10" rx="1"></rect>
+                                </svg>
+                            </button>
+                            <button class="icon-btn muted d-none" type="button" data-record-clear disabled title="Usun nagranie" aria-label="Usun nagranie">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M8 6V4h8v2"></path>
+                                    <path d="m19 6-1 14H6L5 6"></path>
+                                </svg>
+                            </button>
+                            <span class="composer-status d-none" data-record-status></span>
+                            <audio class="d-none" data-record-preview></audio>
+                            <div class="voice-preview-player d-none" data-record-player>
+                                <button class="voice-play-btn" type="button" data-record-play title="Odtworz glosowke" aria-label="Odtworz glosowke">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path data-play-icon d="M8 5v14l11-7Z"></path>
+                                        <g data-pause-icon class="d-none">
+                                            <path d="M8 5v14"></path>
+                                            <path d="M16 5v14"></path>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <span class="voice-time" data-record-time>0:00</span>
+                                <input class="voice-progress" type="range" min="0" max="100" value="0" step="1" data-record-progress aria-label="Postep glosowki">
                             </div>
-                            <div class="voice-recorder-status small text-secondary" data-record-status>Brak nagrania</div>
-                            <audio class="message-audio d-none" controls data-record-preview></audio>
                         </div>
+                        {% for error in form.image.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
                         {% for error in form.audio.errors %}
                             <div class="text-danger small mt-1">{{ error }}</div>
                         {% endfor %}
                     </div>
-                    <div class="col-lg-2">
-                        <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
-                    </div>
+                    <button class="icon-btn send" type="submit" title="Wyslij" aria-label="Wyslij">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m22 2-7 20-4-9-9-4Z"></path>
+                            <path d="M22 2 11 13"></path>
+                        </svg>
+                    </button>
                 </div>
             </form>
         {% endif %}
@@ -113,5 +152,5 @@
 
 {% block scripts %}
     {% load static %}
-    <script src="{% static 'js/voice-recorder.js' %}"></script>
+    <script src="{% static 'js/voice-recorder.js' %}?v=20260425-8"></script>
 {% endblock %}

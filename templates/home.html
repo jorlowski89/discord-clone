@@ -3,50 +3,154 @@
 {% block title %}PyCord | Start{% endblock %}
 
 {% block content %}
-<section class="hero-card p-4 p-lg-5">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-7">
-            <span class="badge text-bg-info text-dark mb-3">Etap 1</span>
-            <h1 class="display-5 fw-bold mb-3">Komunikator w Django budowany krok po kroku</h1>
-            <p class="lead text-secondary-emphasis mb-4">
-                Pierwszy etap uruchamia system kont, role oraz ekran startowy inspirowany
-                nowoczesnym komunikatorem. W kolejnych krokach dojdą kanaly, DM i realtime.
-            </p>
-            <div class="d-flex flex-wrap gap-2">
-                {% if request.user.is_authenticated %}
-                    <a href="{% url 'channel_list' %}" class="btn btn-info btn-lg text-dark">Wejdz do kanalow</a>
-                    <a href="{% url 'profile' %}" class="btn btn-info btn-lg text-dark">Edytuj profil</a>
-                    {% if request.user.has_moderation_access %}
-                        <a href="{% url 'moderation_panel' %}" class="btn btn-outline-light btn-lg">Panel moderacji</a>
+{% if request.user.is_authenticated %}
+    <section class="home-app">
+        <div class="home-command">
+            <div class="home-command-copy">
+                <span class="badge text-bg-info text-dark mb-3">PyCord</span>
+                <h1 class="display-6 fw-bold mb-2">Dobrze Cie widziec, {{ request.user.username }}</h1>
+                <p class="text-secondary mb-0">
+                    Twoje centrum rozmow: kanaly grupowe, prywatne DM-y, glosowki i multimedia.
+                </p>
+            </div>
+            <div class="home-command-user">
+                <span class="message-avatar">
+                    {% if request.user.avatar %}
+                        <img src="{{ request.user.avatar.url }}" alt="">
+                    {% else %}
+                        {{ request.user.username|first|upper }}
                     {% endif %}
-                {% else %}
-                    <a href="{% url 'register' %}" class="btn btn-info btn-lg text-dark">Utworz konto</a>
-                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Zaloguj sie</a>
-                {% endif %}
+                </span>
+                <div>
+                    <strong>{{ request.user.username }}</strong>
+                    <span class="text-secondary small d-block">{{ request.user.get_role_display }}</span>
+                </div>
             </div>
         </div>
-        <div class="col-lg-5">
-            <div class="glass-panel">
+
+        {% if request.user.is_blocked %}
+            <div class="blocked-notice">
+                <strong>Tryb tylko do odczytu</strong>
+                <p class="mb-0">
+                    Mozesz przegladac istniejace rozmowy, ale pisanie, tworzenie i edycja sa wylaczone.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="home-layout">
+            <div class="home-primary-actions">
+                <a class="home-feature primary" href="{% url 'channel_list' %}">
+                    <span class="home-feature-icon">#</span>
+                    <span class="home-feature-copy">
+                        <span class="home-feature-kicker">Kanaly</span>
+                        <strong>Rozmowy grupowe</strong>
+                        <span>Publiczne pokoje tekstowe, obrazy i nagrywane glosowki.</span>
+                    </span>
+                </a>
+                <a class="home-feature" href="{% url 'direct_conversation_list' %}">
+                    <span class="home-feature-icon">@</span>
+                    <span class="home-feature-copy">
+                        <span class="home-feature-kicker">DM</span>
+                        <strong>Wiadomosci prywatne</strong>
+                        <span>Rozmowy 1 na 1 bez szukania po kanalach.</span>
+                    </span>
+                </a>
+                <a class="home-feature" href="{% url 'profile' %}">
+                    <span class="home-feature-icon">J</span>
+                    <span class="home-feature-copy">
+                        <span class="home-feature-kicker">Profil</span>
+                        <strong>Avatar, opis i haslo</strong>
+                        <span>Dostosuj konto i swoje dane w PyCord.</span>
+                    </span>
+                </a>
+            </div>
+
+            <aside class="home-side-panel">
+                <h2 class="h5 fw-bold mb-3">Szybki dostep</h2>
+                <div class="home-side-actions">
+                    {% if request.user.has_moderation_access %}
+                        <a href="{% url 'moderation_panel' %}">Panel moderacji</a>
+                    {% endif %}
+                    {% if request.user.has_admin_access %}
+                        <a href="{% url 'admin_panel' %}">Centrum admina</a>
+                    {% endif %}
+                    <a href="{% url 'channel_list' %}">Lista kanalow</a>
+                    <a href="{% url 'direct_conversation_list' %}">Lista DM</a>
+                </div>
+                <div class="home-mini-preview mt-4">
+                    <h2 class="h6 fw-bold mb-3">Ostatnia aktywnosc</h2>
+                    {% if latest_direct_message %}
+                        <a class="home-activity-card" href="{{ latest_direct_message.conversation.get_absolute_url }}">
+                            <span class="home-activity-kicker">Ostatni DM</span>
+                            <strong>{{ latest_direct_message.author.username }}</strong>
+                            <span>{{ latest_direct_message.content|default:"[glosowka lub obraz]" }}</span>
+                            <small>{{ latest_direct_message.created_at|date:"d.m.Y H:i" }}</small>
+                        </a>
+                    {% else %}
+                        <div class="home-activity-card empty">
+                            <span class="home-activity-kicker">Ostatni DM</span>
+                            <strong>Brak odebranych DM</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if latest_channel_message %}
+                        <a class="home-activity-card" href="{{ latest_channel_message.channel.get_absolute_url }}">
+                            <span class="home-activity-kicker">Ostatnia wiadomosc z kanalu</span>
+                            <strong>#{{ latest_channel_message.channel.name }} · {{ latest_channel_message.author.username }}</strong>
+                            <span>{{ latest_channel_message.content|default:"[glosowka lub obraz]" }}</span>
+                            <small>{{ latest_channel_message.created_at|date:"d.m.Y H:i" }}</small>
+                        </a>
+                    {% else %}
+                        <div class="home-activity-card empty">
+                            <span class="home-activity-kicker">Ostatnia wiadomosc z kanalu</span>
+                            <strong>Brak nowych wiadomosci</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </aside>
+        </div>
+    </section>
+{% else %}
+    <section class="home-hero">
+        <div class="home-hero-copy">
+            <span class="badge text-bg-info text-dark mb-3">PyCord</span>
+            <h1 class="display-5 fw-bold mb-3">Komunikator dla kanalow, DM i glosowek</h1>
+            <p class="lead text-secondary mb-4">
+                Tworz kanaly tekstowe, rozmawiaj prywatnie, wysylaj obrazy i nagrywaj
+                wiadomosci glosowe prosto z przegladarki.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'register' %}" class="btn btn-info btn-lg text-dark">Utworz konto</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Zaloguj sie</a>
+            </div>
+        </div>
+
+        <div class="home-preview">
+            <div class="home-preview-sidebar">
+                <span></span>
+                <span class="active"></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="home-preview-main">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <strong># general</strong>
                     <span class="small text-info">online</span>
                 </div>
                 <div class="message-bubble mb-2">
-                    <span class="small text-info d-block">System</span>
-                    Witaj w PyCord. Ten ekran jest gotowy do testow pierwszego etapu.
+                    <span class="small text-info d-block">Maja</span>
+                    Nowy kanal projektowy jest gotowy.
                 </div>
-                <div class="message-bubble muted">
-                    <span class="small text-warning d-block">Plan</span>
-                    Nastepny krok: kanaly tekstowe, wiadomosci i moderacja.
+                <div class="message-bubble muted mb-2">
+                    <span class="small text-warning d-block">Kuba</span>
+                    Wrzucilem obraz i glosowke do sprawdzenia.
                 </div>
-                {% if request.user.is_authenticated %}
-                    <div class="mt-3 small text-secondary">
-                        Zalogowano jako <strong class="text-light">{{ request.user.username }}</strong>
-                        z rola <strong class="text-info">{{ request.user.get_role_display }}</strong>.
-                    </div>
-                {% endif %}
+                <div class="home-preview-composer">
+                    <span>Napisz wiadomosc...</span>
+                    <span class="home-preview-dot"></span>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+{% endif %}
 {% endblock %}

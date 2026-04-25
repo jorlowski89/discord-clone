@@ -33,7 +33,11 @@ class MessageForm(forms.ModelForm):
                 }
             ),
             "image": forms.ClearableFileInput(
-                attrs={"class": "form-control", "accept": "image/*"}
+                attrs={
+                    "class": "form-control d-none",
+                    "accept": "image/*",
+                    "tabindex": "-1",
+                }
             ),
             "audio": forms.ClearableFileInput(
                 attrs={
@@ -69,7 +73,11 @@ class DirectMessageForm(forms.ModelForm):
                 }
             ),
             "image": forms.ClearableFileInput(
-                attrs={"class": "form-control", "accept": "image/*"}
+                attrs={
+                    "class": "form-control d-none",
+                    "accept": "image/*",
+                    "tabindex": "-1",
+                }
             ),
             "audio": forms.ClearableFileInput(
                 attrs={

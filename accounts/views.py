@@ -1,17 +1,47 @@
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .forms import ProfileForm, ProfilePasswordChangeForm, RegisterForm
 from .models import User, UserRole
 from .decorators import role_required, unblocked_required
-from chat.models import Channel, Message
+from chat.models import Channel, DirectMessage, Message
 
 
 def home(request):
-    return render(request, "home.html")
+    context = {}
+    if request.user.is_authenticated:
+        context["latest_direct_message"] = (
+            DirectMessage.objects.select_related(
+                "author",
+                "conversation",
+                "conversation__user_one",
+                "conversation__user_two",
+            )
+            .filter(
+                Q(conversation__user_one=request.user)
+                | Q(conversation__user_two=request.user),
+                is_deleted=False,
+            )
+            .exclude(author=request.user)
+            .order_by("-created_at")
+            .first()
+        )
+        context["latest_channel_message"] = (
+            Message.objects.select_related("author", "channel")
+            .filter(
+                channel__members=request.user,
+                is_deleted=False,
+            )
+            .exclude(author=request.user)
+            .order_by("-created_at")
+            .first()
+        )
+
+    return render(request, "home.html", context)
 
 
 def register_view(request):

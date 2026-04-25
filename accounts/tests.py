@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from chat.models import Channel, Message
+from chat.models import Channel, DirectConversation, DirectMessage, Message
 
 
 User = get_user_model()
@@ -14,6 +14,37 @@ class AccountsFlowTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "PyCord")
+
+    def test_home_page_shows_latest_incoming_activity(self):
+        user = User.objects.create_user(
+            username="reader",
+            email="reader@example.com",
+            password="StrongPassword123",
+        )
+        other_user = User.objects.create_user(
+            username="sender",
+            email="sender@example.com",
+            password="StrongPassword123",
+        )
+        conversation, _ = DirectConversation.get_or_create_between(user, other_user)
+        DirectMessage.objects.create(
+            conversation=conversation,
+            author=other_user,
+            content="Private ping",
+        )
+        channel = Channel.objects.create(name="General", created_by=other_user)
+        channel.members.add(user, other_user)
+        Message.objects.create(
+            channel=channel,
+            author=other_user,
+            content="Channel ping",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Private ping")
+        self.assertContains(response, "Channel ping")
 
     def test_user_can_register(self):
         response = self.client.post(
