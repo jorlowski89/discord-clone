@@ -53,5 +53,5 @@ def admin_panel(request):
     return render(request, "accounts/admin_panel.html")
 
 
-def custom_404(request, exception):
+def custom_404(request, exception=None):
     return render(request, "404.html", status=404)

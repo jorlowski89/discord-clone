@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}404 | PyCord{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="auth-card text-center">
-            <span class="display-2 fw-bold text-info">404</span>
-            <h1 class="h3 fw-bold mt-3 mb-3">Nie znaleziono strony</h1>
-            <p class="text-secondary mb-4">
-                Wyglada na to, ze wskazany adres nie istnieje albo zostal przeniesiony.
-            </p>
-            <a href="{% url 'home' %}" class="btn btn-info text-dark">Wroc na strone glowna</a>
-        </div>
+<section class="not-found-shell">
+    <div class="not-found-copy text-center">
+        <span class="badge text-bg-info text-dark mb-3">404</span>
+        <h1 class="h2 fw-bold mb-2">Strona nie zostala znaleziona</h1>
     </div>
-</div>
+    <div class="not-found-art">
+        <img src="{% static 'img/page-not-found.png' %}" alt="Zagubiona wiadomosc szuka brakujacej strony">
+    </div>
+    <div class="not-found-actions">
+        <a href="{% url 'home' %}" class="btn btn-info btn-lg text-dark">Strona glowna</a>
+    </div>
+</section>
 {% endblock %}

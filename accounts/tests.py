@@ -69,3 +69,9 @@ class AccountsFlowTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Centrum kontroli")
+
+    def test_unknown_page_uses_custom_404(self):
+        response = self.client.get("/brak-takiej-strony/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, "Strona nie zostala znaleziona", status_code=404)
