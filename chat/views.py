@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from accounts.decorators import unblocked_required
 from .forms import ChannelForm, DirectMessageForm, MessageForm
 from .models import Channel, DirectConversation
+from .realtime import broadcast_channel_message, broadcast_direct_message
 
 
 User = get_user_model()
@@ -85,6 +86,7 @@ def channel_detail(request, slug):
             message.channel = channel
             message.author = request.user
             message.save()
+            broadcast_channel_message(message)
             return redirect(channel)
     else:
         form = MessageForm()
@@ -177,6 +179,7 @@ def direct_conversation_detail(request, pk):
             message.conversation = conversation
             message.author = request.user
             message.save()
+            broadcast_direct_message(message)
             return redirect(conversation)
     else:
         form = DirectMessageForm()

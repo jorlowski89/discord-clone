@@ -4,6 +4,7 @@ from django.urls import reverse
 from accounts.models import User
 
 from .models import Channel, DirectConversation, DirectMessage, Message
+from .realtime import serialize_message
 
 
 class ChannelFlowTests(TestCase):
@@ -38,6 +39,25 @@ class ChannelFlowTests(TestCase):
 
         self.assertRedirects(response, channel.get_absolute_url())
         self.assertEqual(Message.objects.filter(channel=channel).count(), 1)
+
+    def test_message_serializer_includes_media_urls(self):
+        self.user.avatar = "avatars/tester.png"
+        self.user.save(update_fields=["avatar"])
+        channel = Channel.objects.create(name="General", created_by=self.user)
+        message = Message.objects.create(
+            channel=channel,
+            author=self.user,
+            content="Media",
+            image="chat/images/screen.png",
+            audio="chat/audio/voice.webm",
+        )
+
+        payload = serialize_message(message)
+
+        self.assertEqual(payload["content"], "Media")
+        self.assertIn("avatars/tester.png", payload["avatar_url"])
+        self.assertIn("chat/images/screen.png", payload["image_url"])
+        self.assertIn("chat/audio/voice.webm", payload["audio_url"])
 
     def test_blocked_member_cannot_send_message(self):
         self.user.is_blocked = True

@@ -23,7 +23,7 @@
     </aside>
 
     <section class="chat-main">
-        <div class="message-list">
+        <div class="message-list" data-message-list>
             {% for message in messages_list %}
                 <article class="chat-message">
                     <div class="message-avatar">
@@ -69,7 +69,7 @@
                 </div>
             </div>
         {% else %}
-            <form class="message-form" method="post" enctype="multipart/form-data" novalidate>
+            <form class="message-form" method="post" enctype="multipart/form-data" data-direct-composer data-conversation-id="{{ conversation.id }}" novalidate>
                 {% csrf_token %}
                 {% for error in form.non_field_errors %}
                     <div class="alert alert-danger">{{ error }}</div>
@@ -153,4 +153,5 @@
 {% block scripts %}
     {% load static %}
     <script src="{% static 'js/voice-recorder.js' %}?v=20260425-8"></script>
+    <script src="{% static 'js/direct-realtime.js' %}?v=20260425-3"></script>
 {% endblock %}
