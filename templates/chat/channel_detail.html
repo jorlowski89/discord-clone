@@ -42,7 +42,7 @@
                                 <strong>{{ message.author.username }}</strong>
                                 <span class="text-secondary small">{{ message.created_at|date:"d.m.Y H:i" }}</span>
                                 {% if request.user.has_moderation_access %}
-                                    <form class="ms-auto" method="post" action="{% url 'delete_message' message.id %}">
+                                    <form class="ms-auto" method="post" action="{% url 'delete_message' message.id %}" onsubmit="return confirm('Czy na pewno chcesz usunac te wiadomosc?');">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ channel.get_absolute_url }}">
                                         <button class="message-delete-btn" type="submit">Usun</button>

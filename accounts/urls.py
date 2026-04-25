@@ -21,6 +21,7 @@ urlpatterns = [
     path("control-center/", views.admin_panel, name="admin_panel"),
     path("users/<int:user_id>/role/", views.update_user_role, name="update_user_role"),
     path("users/<int:user_id>/block/", views.toggle_user_block, name="toggle_user_block"),
+    path("users/<int:user_id>/delete/", views.delete_user, name="delete_user"),
     path(
         "messages/<int:message_id>/delete/",
         views.delete_message,

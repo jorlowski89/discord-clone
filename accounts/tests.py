@@ -152,7 +152,27 @@ class AccountsFlowTests(TestCase):
         self.assertRedirects(response, reverse("admin_panel"))
         self.assertEqual(user.role, "moderator")
 
-    def test_moderator_can_block_regular_user(self):
+    def test_admin_can_block_regular_user(self):
+        admin = User.objects.create_user(
+            username="adminblock",
+            email="adminblock@example.com",
+            password="StrongPassword123",
+            role="admin",
+        )
+        user = User.objects.create_user(
+            username="loud",
+            email="loud@example.com",
+            password="StrongPassword123",
+        )
+        self.client.force_login(admin)
+
+        response = self.client.post(reverse("toggle_user_block", args=[user.id]))
+
+        user.refresh_from_db()
+        self.assertRedirects(response, reverse("admin_panel"))
+        self.assertTrue(user.is_blocked)
+
+    def test_moderator_cannot_block_user(self):
         moderator = User.objects.create_user(
             username="mod2",
             email="mod2@example.com",
@@ -166,11 +186,15 @@ class AccountsFlowTests(TestCase):
         )
         self.client.force_login(moderator)
 
-        response = self.client.post(reverse("toggle_user_block", args=[user.id]))
+        response = self.client.post(
+            reverse("toggle_user_block", args=[user.id]),
+            follow=True,
+        )
 
         user.refresh_from_db()
-        self.assertRedirects(response, reverse("moderation_panel"))
-        self.assertTrue(user.is_blocked)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(user.is_blocked)
+        self.assertContains(response, "Nie masz uprawnien do tej sekcji.")
 
     def test_moderator_can_delete_message(self):
         moderator = User.objects.create_user(
@@ -281,6 +305,58 @@ class AccountsFlowTests(TestCase):
         response = self.client.get(reverse("moderation_panel"))
 
         self.assertNotContains(response, "Usun kanal")
+
+    def test_moderation_panel_does_not_show_user_blocking(self):
+        admin = User.objects.create_user(
+            username="adminwithoutusers",
+            email="adminwithoutusers@example.com",
+            password="StrongPassword123",
+            role="admin",
+        )
+        User.objects.create_user(
+            username="regularuser",
+            email="regularuser@example.com",
+            password="StrongPassword123",
+        )
+        self.client.force_login(admin)
+
+        response = self.client.get(reverse("moderation_panel"))
+
+        self.assertNotContains(response, "Zablokuj")
+        self.assertNotContains(response, "Uzytkownicy</h2>")
+
+    def test_admin_can_delete_user(self):
+        admin = User.objects.create_user(
+            username="deleteadmin",
+            email="deleteadmin@example.com",
+            password="StrongPassword123",
+            role="admin",
+        )
+        user = User.objects.create_user(
+            username="delete-me",
+            email="delete-me@example.com",
+            password="StrongPassword123",
+        )
+        self.client.force_login(admin)
+
+        response = self.client.post(reverse("delete_user", args=[user.id]))
+
+        self.assertRedirects(response, reverse("admin_panel"))
+        self.assertFalse(User.objects.filter(id=user.id).exists())
+
+    def test_admin_cannot_delete_self(self):
+        admin = User.objects.create_user(
+            username="selfadmin",
+            email="selfadmin@example.com",
+            password="StrongPassword123",
+            role="admin",
+        )
+        self.client.force_login(admin)
+
+        response = self.client.post(reverse("delete_user", args=[admin.id]))
+
+        self.assertRedirects(response, reverse("admin_panel"))
+        self.assertTrue(User.objects.filter(id=admin.id).exists())
 
     def test_blocked_user_cannot_edit_profile(self):
         user = User.objects.create_user(

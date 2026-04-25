@@ -7,49 +7,13 @@
     <div>
         <span class="badge text-bg-warning mb-2">Moderator+</span>
         <h1 class="h3 fw-bold mb-1">Panel moderacji</h1>
-        <p class="text-secondary mb-0">Blokowanie uzytkownikow oraz porzadkowanie wiadomosci i kanalow.</p>
+        <p class="text-secondary mb-0">Porzadkowanie wiadomosci i kanalow.</p>
     </div>
 </div>
 
 <div class="row g-4">
-    <div class="col-lg-5">
-        <section class="panel-section">
-            <h2 class="h5 fw-bold mb-3">Uzytkownicy</h2>
-            <div class="stack-list">
-                {% for user in users %}
-                    <div class="stack-item">
-                        <div>
-                            <strong>{{ user.username }}</strong>
-                            <div class="text-secondary small">
-                                {{ user.get_role_display }} &middot;
-                                {% if user.is_blocked %}zablokowany{% else %}aktywny{% endif %}
-                            </div>
-                        </div>
-
-                        {% if user != request.user %}
-                            {% if request.user.has_admin_access or user.role == "user" %}
-                                <form method="post" action="{% url 'toggle_user_block' user.id %}">
-                                    {% csrf_token %}
-                                    <button class="btn btn-sm {% if user.is_blocked %}btn-outline-info{% else %}btn-outline-warning{% endif %}" type="submit">
-                                        {% if user.is_blocked %}Odblokuj{% else %}Zablokuj{% endif %}
-                                    </button>
-                                </form>
-                            {% else %}
-                                <button class="btn btn-sm btn-outline-secondary" type="button" disabled>Chroniony</button>
-                            {% endif %}
-                        {% else %}
-                            <span class="badge text-bg-dark border border-info-subtle">Ty</span>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    <p class="text-secondary mb-0">Brak uzytkownikow.</p>
-                {% endfor %}
-            </div>
-        </section>
-    </div>
-
     {% if request.user.has_admin_access %}
-        <div class="col-lg-7">
+        <div class="col-12">
             <section class="panel-section">
                 <h2 class="h5 fw-bold mb-3">Kanaly</h2>
                 <div class="stack-list">
@@ -61,7 +25,7 @@
                                     Utworzyl: {{ channel.created_by|default:"system" }} &middot; {{ channel.members.count }} osob
                                 </div>
                             </div>
-                            <form method="post" action="{% url 'delete_channel' channel.id %}">
+                            <form method="post" action="{% url 'delete_channel' channel.id %}" onsubmit="return confirm('Czy na pewno chcesz usunac kanal #{{ channel.name }}? Tej operacji nie mozna cofnac.');">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-outline-danger" type="submit">Usun kanal</button>
                             </form>
@@ -108,7 +72,7 @@
                             </div>
                             <div class="moderation-message-content">{{ message.content|default:"[plik multimedialny]" }}</div>
                         </div>
-                        <form method="post" action="{% url 'delete_message' message.id %}">
+                        <form method="post" action="{% url 'delete_message' message.id %}" onsubmit="return confirm('Czy na pewno chcesz usunac te wiadomosc?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{{ request.get_full_path }}">
                             <button class="btn btn-sm btn-outline-danger" type="submit">Usun</button>

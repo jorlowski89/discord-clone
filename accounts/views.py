@@ -131,24 +131,36 @@ def update_user_role(request, user_id):
 
 
 @require_POST
-@role_required(UserRole.MODERATOR, UserRole.ADMIN)
+@role_required(UserRole.ADMIN)
 @unblocked_required
 def toggle_user_block(request, user_id):
     user = get_object_or_404(User, pk=user_id)
 
     if user == request.user:
         messages.error(request, "Nie mozesz zablokowac samego siebie.")
-        return redirect("moderation_panel")
-
-    if not request.user.has_admin_access and user.role != UserRole.USER:
-        messages.error(request, "Moderator moze blokowac tylko zwyklych uzytkownikow.")
-        return redirect("moderation_panel")
+        return redirect("admin_panel")
 
     user.is_blocked = not user.is_blocked
     user.save(update_fields=["is_blocked"])
     state = "zablokowany" if user.is_blocked else "odblokowany"
     messages.success(request, f"Uzytkownik {user.username} zostal {state}.")
-    return redirect("moderation_panel")
+    return redirect("admin_panel")
+
+
+@require_POST
+@role_required(UserRole.ADMIN)
+@unblocked_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+
+    if user == request.user:
+        messages.error(request, "Nie mozesz usunac samego siebie.")
+        return redirect("admin_panel")
+
+    username = user.username
+    user.delete()
+    messages.success(request, f"Uzytkownik {username} zostal usuniety.")
+    return redirect("admin_panel")
 
 
 @require_POST

@@ -336,6 +336,13 @@ body {
     min-width: 240px;
 }
 
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
 .min-w-0 {
     min-width: 0;
 }
