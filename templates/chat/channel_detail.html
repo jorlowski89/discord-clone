@@ -92,15 +92,27 @@
                         {% endfor %}
                     </div>
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-lg-4">
                             <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
                             {{ form.image }}
                         </div>
-                        <div class="col-md-5">
-                            <label class="form-label small" for="{{ form.audio.id_for_label }}">Audio</label>
-                            {{ form.audio }}
+                        <div class="col-lg-6">
+                            <label class="form-label small" for="{{ form.audio.id_for_label }}">Glosowka</label>
+                            <div class="voice-recorder" data-voice-recorder>
+                                {{ form.audio }}
+                                <div class="voice-recorder-controls">
+                                    <button class="btn btn-sm btn-outline-info" type="button" data-record-start>Nagraj</button>
+                                    <button class="btn btn-sm btn-outline-warning" type="button" data-record-stop disabled>Zatrzymaj</button>
+                                    <button class="btn btn-sm btn-outline-light" type="button" data-record-clear disabled>Usun</button>
+                                </div>
+                                <div class="voice-recorder-status small text-secondary" data-record-status>Brak nagrania</div>
+                                <audio class="message-audio d-none" controls data-record-preview></audio>
+                            </div>
+                            {% for error in form.audio.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-lg-2">
                             <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
                         </div>
                     </div>
@@ -109,4 +121,9 @@
         {% endif %}
     </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'js/voice-recorder.js' %}"></script>
 {% endblock %}

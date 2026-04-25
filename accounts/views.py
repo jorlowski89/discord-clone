@@ -1,10 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from .forms import ProfileForm, RegisterForm
+from .forms import ProfileForm, ProfilePasswordChangeForm, RegisterForm
 from .models import User, UserRole
 from .decorators import role_required, unblocked_required
 from chat.models import Channel, Message
@@ -33,20 +33,36 @@ def register_view(request):
 
 @login_required
 def profile_view(request):
+    profile_form = ProfileForm(instance=request.user)
+    password_form = ProfilePasswordChangeForm(request.user)
+
     if request.method == "POST":
         if request.user.is_blocked:
-            messages.error(request, "Zablokowane konto nie moze edytowac profilu.")
+            messages.error(request, "Zablokowane konto nie moze edytowac profilu ani hasla.")
             return redirect("profile")
 
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profil zostal zapisany.")
-            return redirect("profile")
-    else:
-        form = ProfileForm(instance=request.user)
+        if request.POST.get("action") == "password":
+            password_form = ProfilePasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Haslo zostalo zmienione.")
+                return redirect("profile")
+        else:
+            profile_form = ProfileForm(request.POST, request.FILES, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profil zostal zapisany.")
+                return redirect("profile")
 
-    return render(request, "accounts/profile.html", {"form": form})
+    return render(
+        request,
+        "accounts/profile.html",
+        {
+            "form": profile_form,
+            "password_form": password_form,
+        },
+    )
 
 
 @role_required(UserRole.MODERATOR, UserRole.ADMIN)

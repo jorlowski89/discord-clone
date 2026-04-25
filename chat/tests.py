@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from accounts.models import User
 
-from .models import Channel, Message
+from .models import Channel, DirectConversation, DirectMessage, Message
 
 
 class ChannelFlowTests(TestCase):
@@ -88,3 +88,113 @@ class ChannelFlowTests(TestCase):
         response = self.client.get(channel.get_absolute_url())
 
         self.assertContains(response, "Wysylanie wiadomosci jest zablokowane")
+
+    def test_user_can_start_direct_conversation(self):
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("direct_conversation_start", args=[other_user.id])
+        )
+
+        conversation = DirectConversation.objects.get()
+        self.assertRedirects(response, conversation.get_absolute_url())
+        self.assertTrue(conversation.includes(self.user))
+        self.assertTrue(conversation.includes(other_user))
+
+    def test_direct_conversation_pair_is_reused(self):
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+
+        first, _ = DirectConversation.get_or_create_between(self.user, other_user)
+        second, created = DirectConversation.get_or_create_between(other_user, self.user)
+
+        self.assertFalse(created)
+        self.assertEqual(first, second)
+
+    def test_user_can_send_direct_message(self):
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        conversation, _ = DirectConversation.get_or_create_between(
+            self.user,
+            other_user,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            conversation.get_absolute_url(),
+            {"content": "Private hello"},
+        )
+
+        self.assertRedirects(response, conversation.get_absolute_url())
+        self.assertEqual(DirectMessage.objects.filter(conversation=conversation).count(), 1)
+
+    def test_non_participant_cannot_open_direct_conversation(self):
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        stranger = User.objects.create_user(
+            username="stranger",
+            email="stranger@example.com",
+            password="StrongPass123",
+        )
+        conversation, _ = DirectConversation.get_or_create_between(
+            self.user,
+            other_user,
+        )
+        self.client.force_login(stranger)
+
+        response = self.client.get(conversation.get_absolute_url())
+
+        self.assertRedirects(response, reverse("direct_conversation_list"))
+
+    def test_blocked_user_cannot_start_direct_conversation(self):
+        self.user.is_blocked = True
+        self.user.save(update_fields=["is_blocked"])
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("direct_conversation_start", args=[other_user.id])
+        )
+
+        self.assertRedirects(response, reverse("home"))
+        self.assertFalse(DirectConversation.objects.exists())
+
+    def test_blocked_user_cannot_send_direct_message(self):
+        self.user.is_blocked = True
+        self.user.save(update_fields=["is_blocked"])
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        conversation, _ = DirectConversation.get_or_create_between(
+            self.user,
+            other_user,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            conversation.get_absolute_url(),
+            {"content": "Blocked private hello"},
+        )
+
+        self.assertRedirects(response, conversation.get_absolute_url())
+        self.assertFalse(DirectMessage.objects.filter(conversation=conversation).exists())

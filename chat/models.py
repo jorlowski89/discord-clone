@@ -64,3 +64,81 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return f"{self.author} in {self.channel}"
+
+
+class DirectConversation(models.Model):
+    user_one = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="direct_conversations_started",
+    )
+    user_two = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="direct_conversations_received",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user_one", "user_two"],
+                name="unique_direct_conversation_pair",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(user_one=models.F("user_two")),
+                name="direct_conversation_distinct_users",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user_one} <-> {self.user_two}"
+
+    @classmethod
+    def get_or_create_between(cls, first_user, second_user):
+        if first_user.pk == second_user.pk:
+            raise ValueError("Cannot create a direct conversation with yourself.")
+
+        user_one, user_two = sorted(
+            [first_user, second_user],
+            key=lambda user: user.pk,
+        )
+        return cls.objects.get_or_create(user_one=user_one, user_two=user_two)
+
+    def includes(self, user) -> bool:
+        return user.pk in {self.user_one_id, self.user_two_id}
+
+    def other_user(self, user):
+        if user.pk == self.user_one_id:
+            return self.user_two
+        if user.pk == self.user_two_id:
+            return self.user_one
+        raise ValueError("User is not a participant in this conversation.")
+
+    def get_absolute_url(self):
+        return reverse("direct_conversation_detail", kwargs={"pk": self.pk})
+
+
+class DirectMessage(models.Model):
+    conversation = models.ForeignKey(
+        DirectConversation,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="direct_messages",
+    )
+    content = models.TextField(blank=True)
+    image = models.ImageField(upload_to="dm/images/", blank=True, null=True)
+    audio = models.FileField(upload_to="dm/audio/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self) -> str:
+        return f"DM from {self.author}"

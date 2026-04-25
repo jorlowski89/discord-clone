@@ -1,5 +1,10 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    UserChangeForm,
+    UserCreationForm,
+)
 
 from .models import User
 
@@ -78,3 +83,26 @@ class ProfileForm(UserChangeForm):
             "avatar": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
+
+class ProfilePasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label="Aktualne haslo",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "Aktualne haslo"}
+        ),
+    )
+    new_password1 = forms.CharField(
+        label="Nowe haslo",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "Nowe haslo"}
+        ),
+    )
+    new_password2 = forms.CharField(
+        label="Powtorz nowe haslo",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "Powtorz nowe haslo"}
+        ),
+    )

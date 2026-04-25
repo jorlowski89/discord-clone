@@ -31,6 +31,44 @@ class AccountsFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(username="tester").exists())
 
+    def test_user_can_register_with_weak_password(self):
+        response = self.client.post(
+            reverse("register"),
+            {
+                "username": "weakpass",
+                "email": "weakpass@example.com",
+                "bio": "",
+                "password1": "1",
+                "password2": "1",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(User.objects.filter(username="weakpass").exists())
+
+    def test_user_can_change_password_from_profile(self):
+        user = User.objects.create_user(
+            username="passworduser",
+            email="passworduser@example.com",
+            password="old",
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("profile"),
+            {
+                "action": "password",
+                "old_password": "old",
+                "new_password1": "1",
+                "new_password2": "1",
+            },
+        )
+
+        user.refresh_from_db()
+        self.assertRedirects(response, reverse("profile"))
+        self.assertTrue(user.check_password("1"))
+
     def test_regular_user_cannot_open_moderation_panel(self):
         user = User.objects.create_user(
             username="regular",

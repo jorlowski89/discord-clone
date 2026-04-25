@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}DM | PyCord{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge text-bg-info text-dark mb-2">DM</span>
+        <h1 class="h3 fw-bold mb-1">Wiadomosci prywatne</h1>
+        <p class="text-secondary mb-0">Rozmowy 1 na 1 z innymi uzytkownikami.</p>
+    </div>
+</div>
+
+{% if request.user.is_blocked %}
+    <div class="blocked-notice mb-4">
+        <strong>Konto zablokowane</strong>
+        <p class="mb-0">
+            Mozesz czytac istniejace rozmowy prywatne, ale rozpoczynanie nowych rozmow
+            i wysylanie wiadomosci jest wylaczone.
+        </p>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <section class="panel-section">
+            <h2 class="h5 fw-bold mb-3">Twoje rozmowy</h2>
+            <div class="stack-list">
+                {% for item in conversation_items %}
+                    <a class="dm-row" href="{{ item.conversation.get_absolute_url }}">
+                        <span class="message-avatar">
+                            {% if item.other_user.avatar %}
+                                <img src="{{ item.other_user.avatar.url }}" alt="">
+                            {% else %}
+                                {{ item.other_user.username|first|upper }}
+                            {% endif %}
+                        </span>
+                        <span class="dm-row-body">
+                            <strong>{{ item.other_user.username }}</strong>
+                            <span class="text-secondary small">
+                                {% if item.latest_message %}
+                                    {{ item.latest_message.author.username }}: {{ item.latest_message.content|default:"[plik multimedialny]" }}
+                                {% else %}
+                                    Brak wiadomosci
+                                {% endif %}
+                            </span>
+                        </span>
+                    </a>
+                {% empty %}
+                    <p class="text-secondary mb-0">Nie masz jeszcze prywatnych rozmow.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-5">
+        <section class="panel-section">
+            <h2 class="h5 fw-bold mb-3">Uzytkownicy</h2>
+            <div class="stack-list">
+                {% for user in users %}
+                    <div class="stack-item">
+                        <div class="d-flex align-items-center gap-2 min-w-0">
+                            <span class="user-chip-avatar">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="">
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </span>
+                            <div class="min-w-0">
+                                <strong>{{ user.username }}</strong>
+                                <div class="text-secondary small">{{ user.get_role_display }}</div>
+                            </div>
+                        </div>
+
+                        {% if request.user.is_blocked %}
+                            <button class="btn btn-sm btn-outline-secondary" type="button" disabled>Rozmowa</button>
+                        {% else %}
+                            <form method="post" action="{% url 'direct_conversation_start' user.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-info" type="submit">Rozmowa</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="text-secondary mb-0">Brak innych uzytkownikow.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

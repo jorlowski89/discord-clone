@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}DM {{ other_user.username }} | PyCord{% endblock %}
+
+{% block content %}
+<div class="chat-shell">
+    <aside class="chat-sidebar">
+        <a href="{% url 'direct_conversation_list' %}" class="btn btn-outline-light btn-sm w-100 mb-3">Wszystkie DM</a>
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="message-avatar">
+                {% if other_user.avatar %}
+                    <img src="{{ other_user.avatar.url }}" alt="">
+                {% else %}
+                    {{ other_user.username|first|upper }}
+                {% endif %}
+            </span>
+            <div>
+                <h1 class="h5 fw-bold mb-0">{{ other_user.username }}</h1>
+                <div class="text-secondary small">{{ other_user.get_role_display }}</div>
+            </div>
+        </div>
+        <p class="text-secondary small mb-0">Prywatna rozmowa 1 na 1.</p>
+    </aside>
+
+    <section class="chat-main">
+        <div class="message-list">
+            {% for message in messages_list %}
+                <article class="chat-message">
+                    <div class="message-avatar">
+                        {% if message.author.avatar %}
+                            <img src="{{ message.author.avatar.url }}" alt="">
+                        {% else %}
+                            {{ message.author.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="message-body">
+                        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
+                            <strong>{{ message.author.username }}</strong>
+                            <span class="text-secondary small">{{ message.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        {% if message.content %}
+                            <p class="mb-2">{{ message.content|linebreaksbr }}</p>
+                        {% endif %}
+                        {% if message.image %}
+                            <img class="message-image" src="{{ message.image.url }}" alt="Obraz z wiadomosci prywatnej">
+                        {% endif %}
+                        {% if message.audio %}
+                            <audio controls class="message-audio">
+                                <source src="{{ message.audio.url }}">
+                            </audio>
+                        {% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-chat">
+                    <h2 class="h4 fw-bold mb-2">Brak wiadomosci</h2>
+                    <p class="text-secondary mb-0">Rozpocznij prywatna rozmowe.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if request.user.is_blocked %}
+            <div class="message-form">
+                <div class="blocked-notice mb-0">
+                    <strong>Wysylanie wiadomosci jest zablokowane</strong>
+                    <p class="mb-0">
+                        Mozesz czytac rozmowe, ale moderator ograniczyl mozliwosc pisania z tego konta.
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <form class="message-form" method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+                <div class="mb-3">
+                    {{ form.content }}
+                    {% for error in form.content.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-4">
+                        <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
+                        {{ form.image }}
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label small" for="{{ form.audio.id_for_label }}">Glosowka</label>
+                        <div class="voice-recorder" data-voice-recorder>
+                            {{ form.audio }}
+                            <div class="voice-recorder-controls">
+                                <button class="btn btn-sm btn-outline-info" type="button" data-record-start>Nagraj</button>
+                                <button class="btn btn-sm btn-outline-warning" type="button" data-record-stop disabled>Zatrzymaj</button>
+                                <button class="btn btn-sm btn-outline-light" type="button" data-record-clear disabled>Usun</button>
+                            </div>
+                            <div class="voice-recorder-status small text-secondary" data-record-status>Brak nagrania</div>
+                            <audio class="message-audio d-none" controls data-record-preview></audio>
+                        </div>
+                        {% for error in form.audio.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'js/voice-recorder.js' %}"></script>
+{% endblock %}

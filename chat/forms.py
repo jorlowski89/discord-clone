@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Channel, Message
+from .models import Channel, DirectMessage, Message
 
 
 class ChannelForm(forms.ModelForm):
@@ -36,7 +36,47 @@ class MessageForm(forms.ModelForm):
                 attrs={"class": "form-control", "accept": "image/*"}
             ),
             "audio": forms.ClearableFileInput(
-                attrs={"class": "form-control", "accept": "audio/*"}
+                attrs={
+                    "class": "form-control d-none",
+                    "accept": "audio/*",
+                    "tabindex": "-1",
+                }
+            ),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        content = cleaned_data.get("content")
+        image = cleaned_data.get("image")
+        audio = cleaned_data.get("audio")
+
+        if not content and not image and not audio:
+            raise forms.ValidationError("Wpisz tekst albo dodaj plik.")
+
+        return cleaned_data
+
+
+class DirectMessageForm(forms.ModelForm):
+    class Meta:
+        model = DirectMessage
+        fields = ("content", "image", "audio")
+        widgets = {
+            "content": forms.Textarea(
+                attrs={
+                    "class": "form-control chat-input",
+                    "rows": 2,
+                    "placeholder": "Napisz prywatna wiadomosc",
+                }
+            ),
+            "image": forms.ClearableFileInput(
+                attrs={"class": "form-control", "accept": "image/*"}
+            ),
+            "audio": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control d-none",
+                    "accept": "audio/*",
+                    "tabindex": "-1",
+                }
             ),
         }
 
