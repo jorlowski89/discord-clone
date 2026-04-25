@@ -55,6 +55,106 @@ body {
     border-color: rgba(255, 184, 77, 0.18);
 }
 
+.channel-card {
+    background: var(--app-panel);
+    border: 1px solid var(--app-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.chat-shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 1rem;
+    min-height: calc(100vh - 150px);
+}
+
+.chat-sidebar,
+.chat-main {
+    background: var(--app-panel);
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+}
+
+.chat-sidebar {
+    padding: 1.25rem;
+}
+
+.chat-main {
+    display: flex;
+    min-height: 580px;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.message-list {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.chat-message {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 14px;
+}
+
+.chat-message:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.message-avatar {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: rgba(102, 217, 239, 0.16);
+    color: var(--app-accent);
+    font-weight: 700;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-body {
+    min-width: 0;
+}
+
+.message-image {
+    display: block;
+    max-width: min(100%, 520px);
+    max-height: 340px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.message-audio {
+    width: min(100%, 420px);
+}
+
+.message-form {
+    padding: 1rem;
+    border-top: 1px solid var(--app-border);
+    background: rgba(8, 12, 19, 0.36);
+}
+
+.chat-input {
+    resize: vertical;
+}
+
+.empty-chat {
+    margin: auto;
+    padding: 2rem;
+    text-align: center;
+}
+
 .form-control,
 .form-control:focus {
     background-color: rgba(255, 255, 255, 0.04);
@@ -76,5 +176,13 @@ body {
     .hero-card,
     .auth-card {
         padding: 1.5rem;
+    }
+
+    .chat-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-main {
+        min-height: 520px;
     }
 }

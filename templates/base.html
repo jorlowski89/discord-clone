@@ -17,6 +17,7 @@
             <a class="navbar-brand fw-bold" href="{% url 'home' %}">PyCord</a>
             <div class="ms-auto d-flex align-items-center gap-2">
                 {% if request.user.is_authenticated %}
+                    <a class="btn btn-outline-info btn-sm" href="{% url 'channel_list' %}">Kanaly</a>
                     {% if request.user.role == "admin" %}
                         <a class="btn btn-outline-danger btn-sm" href="{% url 'admin_panel' %}">Admin</a>
                     {% endif %}

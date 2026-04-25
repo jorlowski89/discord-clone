@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Kanaly | PyCord{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="badge text-bg-info text-dark mb-2">Etap 2</span>
+        <h1 class="h3 fw-bold mb-1">Kanaly tekstowe</h1>
+        <p class="text-secondary mb-0">Tworz pokoje, dolaczaj do rozmow i sprawdzaj historie wiadomosci.</p>
+    </div>
+    <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Nowy kanal</a>
+</div>
+
+<div class="row g-3">
+    {% for channel in channels %}
+        <div class="col-md-6 col-xl-4">
+            <div class="channel-card h-100">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1"># {{ channel.name }}</h2>
+                        <p class="text-secondary small mb-0">
+                            {{ channel.description|default:"Brak opisu" }}
+                        </p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-dark border border-info-subtle">
+                        {{ channel.members.count }}
+                    </span>
+                </div>
+
+                {% if channel.id in joined_channel_ids %}
+                    <a href="{{ channel.get_absolute_url }}" class="btn btn-outline-light w-100">Otworz</a>
+                {% else %}
+                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark w-100">Dolacz</a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="auth-card text-center">
+                <h2 class="h4 fw-bold mb-2">Nie ma jeszcze kanalow</h2>
+                <p class="text-secondary mb-4">Utworz pierwszy kanal tekstowy do testow.</p>
+                <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Utworz kanal</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

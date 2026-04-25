@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}#{{ channel.name }} | PyCord{% endblock %}
+
+{% block content %}
+<div class="chat-shell">
+    <aside class="chat-sidebar">
+        <a href="{% url 'channel_list' %}" class="btn btn-outline-light btn-sm w-100 mb-3">Wszystkie kanaly</a>
+        <h1 class="h4 fw-bold mb-1"># {{ channel.name }}</h1>
+        <p class="text-secondary small mb-3">{{ channel.description|default:"Kanal tekstowy" }}</p>
+        <div class="small text-secondary">
+            Czlonkowie: {{ channel.members.count }}
+        </div>
+    </aside>
+
+    <section class="chat-main">
+        {% if not is_member %}
+            <div class="empty-chat">
+                <h2 class="h4 fw-bold mb-2">Dolacz do kanalu</h2>
+                <p class="text-secondary mb-4">Historia wiadomosci jest dostepna po dolaczeniu.</p>
+                <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark">Dolacz</a>
+            </div>
+        {% else %}
+            <div class="message-list">
+                {% for message in messages_list %}
+                    <article class="chat-message">
+                        <div class="message-avatar">
+                            {% if message.author.avatar %}
+                                <img src="{{ message.author.avatar.url }}" alt="">
+                            {% else %}
+                                {{ message.author.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="message-body">
+                            <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
+                                <strong>{{ message.author.username }}</strong>
+                                <span class="text-secondary small">{{ message.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                            {% if message.content %}
+                                <p class="mb-2">{{ message.content|linebreaksbr }}</p>
+                            {% endif %}
+                            {% if message.image %}
+                                <img class="message-image" src="{{ message.image.url }}" alt="Obraz z wiadomosci">
+                            {% endif %}
+                            {% if message.audio %}
+                                <audio controls class="message-audio">
+                                    <source src="{{ message.audio.url }}">
+                                </audio>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="empty-chat">
+                        <h2 class="h4 fw-bold mb-2">Jeszcze cisza</h2>
+                        <p class="text-secondary mb-0">Wyslij pierwsza wiadomosc na tym kanale.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <form class="message-form" method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+                <div class="mb-3">
+                    {{ form.content }}
+                    {% for error in form.content.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label small" for="{{ form.image.id_for_label }}">Obraz</label>
+                        {{ form.image }}
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small" for="{{ form.audio.id_for_label }}">Audio</label>
+                        {{ form.audio }}
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-info text-dark w-100" type="submit">Wyslij</button>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
