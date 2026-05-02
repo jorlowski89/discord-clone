@@ -57,6 +57,7 @@
                                 {% else %}
                                     <form method="post" action="{% url 'toggle_user_block' user.id %}" onsubmit="return confirm('Czy na pewno chcesz {% if user.is_blocked %}odblokowac{% else %}zablokowac{% endif %} uzytkownika {{ user.username }}?');">
                                         {% csrf_token %}
+                                        <input type="hidden" name="next" value="{% url 'admin_panel' %}">
                                         <button class="btn btn-sm {% if user.is_blocked %}btn-outline-info{% else %}btn-outline-warning{% endif %}" type="submit">
                                             {% if user.is_blocked %}Odblokuj{% else %}Zablokuj{% endif %}
                                         </button>

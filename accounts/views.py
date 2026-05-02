@@ -139,6 +139,20 @@ def admin_panel(request):
     )
 
 
+def user_can_toggle_block(actor, target) -> bool:
+    if actor == target:
+        return False
+
+    if actor.has_admin_access:
+        return True
+
+    return (
+        actor.role == UserRole.MODERATOR
+        and target.role == UserRole.USER
+        and not target.is_superuser
+    )
+
+
 @require_POST
 @role_required(UserRole.ADMIN)
 @unblocked_required
@@ -161,20 +175,23 @@ def update_user_role(request, user_id):
 
 
 @require_POST
-@role_required(UserRole.ADMIN)
+@role_required(UserRole.MODERATOR, UserRole.ADMIN)
 @unblocked_required
 def toggle_user_block(request, user_id):
     user = get_object_or_404(User, pk=user_id)
+    next_url = request.POST.get("next") or (
+        "admin_panel" if request.user.has_admin_access else "moderation_panel"
+    )
 
-    if user == request.user:
-        messages.error(request, "Nie mozesz zablokowac samego siebie.")
-        return redirect("admin_panel")
+    if not user_can_toggle_block(request.user, user):
+        messages.error(request, "Nie mozesz zmienic blokady tego uzytkownika.")
+        return redirect(next_url)
 
     user.is_blocked = not user.is_blocked
     user.save(update_fields=["is_blocked"])
     state = "zablokowany" if user.is_blocked else "odblokowany"
     messages.success(request, f"Uzytkownik {user.username} zostal {state}.")
-    return redirect("admin_panel")
+    return redirect(next_url)
 
 
 @require_POST

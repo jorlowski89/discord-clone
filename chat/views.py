@@ -16,7 +16,12 @@ User = get_user_model()
 
 @login_required
 def channel_list(request):
+    query = (request.GET.get("q") or "").strip()
     channels = Channel.objects.prefetch_related("members")
+    if query:
+        channels = channels.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
     joined_channel_ids = set(request.user.channels.values_list("id", flat=True))
     return render(
         request,
@@ -24,6 +29,7 @@ def channel_list(request):
         {
             "channels": channels,
             "joined_channel_ids": joined_channel_ids,
+            "query": query,
         },
     )
 
@@ -110,11 +116,19 @@ def channel_detail(request, slug):
 
 @login_required
 def direct_conversation_list(request):
+    query = (request.GET.get("q") or "").strip()
     conversations = (
         DirectConversation.objects.select_related("user_one", "user_two")
         .filter(Q(user_one=request.user) | Q(user_two=request.user))
         .order_by("-created_at")
     )
+    if query:
+        conversations = conversations.filter(
+            Q(user_one=request.user, user_two__username__icontains=query)
+            | Q(user_two=request.user, user_one__username__icontains=query)
+            | Q(user_one=request.user, user_two__email__icontains=query)
+            | Q(user_two=request.user, user_one__email__icontains=query)
+        )
     conversation_items = []
     for conversation in conversations:
         conversation_items.append(
@@ -129,12 +143,19 @@ def direct_conversation_list(request):
         )
 
     users = User.objects.exclude(pk=request.user.pk).order_by("username")
+    if query:
+        users = users.filter(
+            Q(username__icontains=query)
+            | Q(email__icontains=query)
+            | Q(bio__icontains=query)
+        )
     return render(
         request,
         "chat/direct_list.html",
         {
             "conversation_items": conversation_items,
             "users": users,
+            "query": query,
         },
     )
 

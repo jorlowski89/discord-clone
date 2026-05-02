@@ -16,6 +16,14 @@
     {% endif %}
 </div>
 
+<form class="search-bar mb-4" method="get" role="search">
+    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Szukaj kanalow" aria-label="Szukaj kanalow">
+    <button class="btn btn-outline-info" type="submit">Szukaj</button>
+    {% if query %}
+        <a class="btn btn-outline-light" href="{% url 'channel_list' %}">Wyczysc</a>
+    {% endif %}
+</form>
+
 {% if request.user.is_blocked %}
     <div class="blocked-notice mb-4">
         <strong>Konto zablokowane</strong>

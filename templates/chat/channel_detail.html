@@ -11,6 +11,26 @@
         <div class="small text-secondary">
             Czlonkowie: {{ channel.members.count }}
         </div>
+        {% if is_member %}
+            <div class="voice-channel-panel mt-4" data-voice-channel data-channel-slug="{{ channel.slug }}" data-current-user-id="{{ request.user.id }}">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <strong>Kanal glosowy</strong>
+                    <span class="badge text-bg-dark border border-info-subtle">audio</span>
+                </div>
+                <div class="voice-count small text-secondary mb-2" data-voice-count>W rozmowie: 0</div>
+                <div class="voice-participants mb-3" data-voice-participants></div>
+                {% if request.user.is_blocked %}
+                    <p class="text-secondary small mb-0">Zablokowane konto nie moze dolaczyc do rozmowy glosowej.</p>
+                {% else %}
+                    <p class="text-secondary small mb-3" data-voice-status>Gotowy do rozmowy audio.</p>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button class="btn btn-sm btn-info text-dark" type="button" data-voice-join>Dolacz</button>
+                        <button class="btn btn-sm btn-outline-warning d-none" type="button" data-voice-leave disabled>Rozlacz</button>
+                    </div>
+                    <div class="voice-remote-audio" data-voice-remote-audio></div>
+                {% endif %}
+            </div>
+        {% endif %}
     </aside>
 
     <section class="chat-main">
@@ -166,4 +186,5 @@
     {% load static %}
     <script src="{% static 'js/voice-recorder.js' %}?v=20260425-8"></script>
     <script src="{% static 'js/channel-realtime.js' %}?v=20260425-3"></script>
+    <script src="{% static 'js/voice-channel.js' %}?v=20260502-3"></script>
 {% endblock %}

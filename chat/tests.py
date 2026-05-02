@@ -109,6 +109,24 @@ class ChannelFlowTests(TestCase):
 
         self.assertContains(response, "Wysylanie wiadomosci jest zablokowane")
 
+    def test_channel_list_can_be_searched(self):
+        Channel.objects.create(
+            name="Python",
+            description="Projekt zaliczeniowy",
+            created_by=self.user,
+        )
+        Channel.objects.create(
+            name="Games",
+            description="Offtopic",
+            created_by=self.user,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("channel_list"), {"q": "python"})
+
+        self.assertContains(response, "# Python")
+        self.assertNotContains(response, "# Games")
+
     def test_user_can_start_direct_conversation(self):
         other_user = User.objects.create_user(
             username="friend",
@@ -218,3 +236,21 @@ class ChannelFlowTests(TestCase):
 
         self.assertRedirects(response, conversation.get_absolute_url())
         self.assertFalse(DirectMessage.objects.filter(conversation=conversation).exists())
+
+    def test_direct_user_list_can_be_searched(self):
+        User.objects.create_user(
+            username="anna",
+            email="anna@example.com",
+            password="StrongPass123",
+        )
+        User.objects.create_user(
+            username="bartek",
+            email="bartek@example.com",
+            password="StrongPass123",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("direct_conversation_list"), {"q": "ann"})
+
+        self.assertContains(response, "anna")
+        self.assertNotContains(response, "bartek")
