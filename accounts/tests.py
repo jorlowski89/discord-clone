@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -247,6 +248,20 @@ class AccountsFlowTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertContains(response, "Strona nie zostala znaleziona", status_code=404)
+
+    def test_uploaded_media_is_served_by_url(self):
+        media_file = settings.MEDIA_ROOT / "test-media.txt"
+        media_file.write_text("media ok", encoding="utf-8")
+
+        try:
+            response = self.client.get("/media/test-media.txt")
+            content = b"".join(response.streaming_content)
+            response.close()
+        finally:
+            media_file.unlink(missing_ok=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content, b"media ok")
 
     def test_admin_can_update_user_role(self):
         admin = User.objects.create_user(
