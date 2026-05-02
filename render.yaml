@@ -1,13 +1,13 @@
 services:
   - type: web
     name: pycord
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
     startCommand: daphne -b 0.0.0.0 -p $PORT config.asgi:application
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
       - key: DJANGO_DEBUG
         value: "False"
       - key: SECRET_KEY
         generateValue: true
-      - key: ALLOWED_HOSTS
-        sync: false
