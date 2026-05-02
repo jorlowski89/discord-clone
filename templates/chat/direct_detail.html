@@ -6,7 +6,7 @@
 <div class="chat-shell">
     <aside class="chat-sidebar">
         <a href="{% url 'direct_conversation_list' %}" class="btn btn-outline-light btn-sm w-100 mb-3">Wszystkie DM</a>
-        <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="d-flex align-items-center gap-2 mb-3" data-presence-user data-user-id="{{ other_user.id }}">
             <span class="message-avatar">
                 {% if other_user.avatar %}
                     <img src="{{ other_user.avatar.url }}" alt="">
@@ -16,7 +16,11 @@
             </span>
             <div>
                 <h1 class="h5 fw-bold mb-0">{{ other_user.username }}</h1>
-                <div class="text-secondary small">{{ other_user.get_role_display }}</div>
+                <div class="text-secondary small">
+                    {{ other_user.get_role_display }}
+                    <span class="presence-dot {% if other_user.is_online %}online{% endif %}" aria-hidden="true" data-presence-dot></span>
+                    <span data-presence-label>{% if other_user.is_online %}online{% else %}offline{% endif %}</span>
+                </div>
             </div>
         </div>
         <p class="text-secondary small mb-0">Prywatna rozmowa 1 na 1.</p>
@@ -49,6 +53,23 @@
                                 <source src="{{ message.audio.url }}">
                             </audio>
                         {% endif %}
+                        {% if not request.user.is_blocked %}
+                            <div class="reaction-row">
+                                {% for reaction in message.reaction_summary %}
+                                    <form method="post" action="{% url 'toggle_direct_message_reaction' message.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="emoji" value="{{ reaction.emoji }}">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button class="reaction-pill {% if reaction.user_reacted %}active{% endif %}" type="submit" title="Reakcja {{ reaction.emoji }}" aria-label="Reakcja {{ reaction.emoji }}">
+                                            <span>{{ reaction.emoji }}</span>
+                                            {% if reaction.count %}
+                                                <span>{{ reaction.count }}</span>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </article>
             {% empty %}
@@ -69,7 +90,7 @@
                 </div>
             </div>
         {% else %}
-            <form class="message-form" method="post" enctype="multipart/form-data" data-direct-composer data-conversation-id="{{ conversation.id }}" novalidate>
+            <form class="message-form" method="post" enctype="multipart/form-data" data-direct-composer data-conversation-id="{{ conversation.id }}" data-current-user="{{ request.user.username }}" novalidate>
                 {% csrf_token %}
                 {% for error in form.non_field_errors %}
                     <div class="alert alert-danger">{{ error }}</div>
@@ -82,6 +103,19 @@
                 </div>
                 <div class="composer-tools">
                     <div class="composer-actions">
+                        <div class="emoji-picker" data-emoji-picker>
+                            <button class="icon-btn" type="button" data-emoji-toggle title="Dodaj emotke" aria-label="Dodaj emotke">☺</button>
+                            <div class="emoji-menu d-none" data-emoji-menu>
+                                <button type="button" data-emoji="😀">😀</button>
+                                <button type="button" data-emoji="😂">😂</button>
+                                <button type="button" data-emoji="😍">😍</button>
+                                <button type="button" data-emoji="😎">😎</button>
+                                <button type="button" data-emoji="👍">👍</button>
+                                <button type="button" data-emoji="🔥">🔥</button>
+                                <button type="button" data-emoji="❤️">❤️</button>
+                                <button type="button" data-emoji="🎉">🎉</button>
+                            </div>
+                        </div>
                         <div class="image-picker" data-image-picker>
                             {{ form.image }}
                             <label class="icon-btn" for="{{ form.image.id_for_label }}" title="Dodaj obraz" aria-label="Dodaj obraz">
@@ -153,5 +187,7 @@
 {% block scripts %}
     {% load static %}
     <script src="{% static 'js/voice-recorder.js' %}?v=20260425-8"></script>
-    <script src="{% static 'js/direct-realtime.js' %}?v=20260425-3"></script>
+    <script src="{% static 'js/composer-emoji.js' %}?v=20260502-1"></script>
+    <script src="{% static 'js/direct-realtime.js' %}?v=20260502-5"></script>
+    <script src="{% static 'js/presence.js' %}?v=20260502-1"></script>
 {% endblock %}

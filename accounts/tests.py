@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from chat.models import Channel, DirectConversation, DirectMessage, Message
 
@@ -61,6 +62,57 @@ class AccountsFlowTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(username="tester").exists())
+
+    def test_user_online_status_uses_last_seen(self):
+        user = User.objects.create_user(
+            username="statususer",
+            email="statususer@example.com",
+            password="StrongPassword123",
+            last_seen=timezone.now(),
+        )
+
+        self.assertTrue(user.is_online)
+
+        user.last_seen = timezone.now() - timezone.timedelta(minutes=6)
+
+        self.assertFalse(user.is_online)
+
+    def test_logout_marks_user_offline(self):
+        user = User.objects.create_user(
+            username="logoutstatus",
+            email="logoutstatus@example.com",
+            password="StrongPassword123",
+            last_seen=timezone.now(),
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse("logout"))
+
+        user.refresh_from_db()
+        self.assertRedirects(response, reverse("home"))
+        self.assertIsNone(user.last_seen)
+
+    def test_presence_endpoint_returns_live_status(self):
+        user = User.objects.create_user(
+            username="presence-reader",
+            email="presence-reader@example.com",
+            password="StrongPassword123",
+        )
+        other_user = User.objects.create_user(
+            username="presence-other",
+            email="presence-other@example.com",
+            password="StrongPassword123",
+            last_seen=timezone.now(),
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("presence_status"), {"ids": str(other_user.id)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {"users": [{"id": other_user.id, "online": True}]},
+        )
 
     def test_user_can_register_with_weak_password(self):
         response = self.client.post(

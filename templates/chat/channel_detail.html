@@ -80,6 +80,23 @@
                                     <source src="{{ message.audio.url }}">
                                 </audio>
                             {% endif %}
+                            {% if not request.user.is_blocked %}
+                                <div class="reaction-row">
+                                    {% for reaction in message.reaction_summary %}
+                                        <form method="post" action="{% url 'toggle_message_reaction' message.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="emoji" value="{{ reaction.emoji }}">
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <button class="reaction-pill {% if reaction.user_reacted %}active{% endif %}" type="submit" title="Reakcja {{ reaction.emoji }}" aria-label="Reakcja {{ reaction.emoji }}">
+                                                <span>{{ reaction.emoji }}</span>
+                                                {% if reaction.count %}
+                                                    <span>{{ reaction.count }}</span>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </article>
                 {% empty %}
@@ -100,7 +117,7 @@
                     </div>
                 </div>
             {% else %}
-                <form class="message-form" method="post" enctype="multipart/form-data" data-channel-composer data-channel-slug="{{ channel.slug }}" novalidate>
+                <form class="message-form" method="post" enctype="multipart/form-data" data-channel-composer data-channel-slug="{{ channel.slug }}" data-current-user="{{ request.user.username }}" novalidate>
                     {% csrf_token %}
                     {% for error in form.non_field_errors %}
                         <div class="alert alert-danger">{{ error }}</div>
@@ -113,6 +130,19 @@
                     </div>
                     <div class="composer-tools">
                         <div class="composer-actions">
+                            <div class="emoji-picker" data-emoji-picker>
+                                <button class="icon-btn" type="button" data-emoji-toggle title="Dodaj emotke" aria-label="Dodaj emotke">☺</button>
+                                <div class="emoji-menu d-none" data-emoji-menu>
+                                    <button type="button" data-emoji="😀">😀</button>
+                                    <button type="button" data-emoji="😂">😂</button>
+                                    <button type="button" data-emoji="😍">😍</button>
+                                    <button type="button" data-emoji="😎">😎</button>
+                                    <button type="button" data-emoji="👍">👍</button>
+                                    <button type="button" data-emoji="🔥">🔥</button>
+                                    <button type="button" data-emoji="❤️">❤️</button>
+                                    <button type="button" data-emoji="🎉">🎉</button>
+                                </div>
+                            </div>
                             <div class="image-picker" data-image-picker>
                                 {{ form.image }}
                                 <label class="icon-btn" for="{{ form.image.id_for_label }}" title="Dodaj obraz" aria-label="Dodaj obraz">
@@ -185,6 +215,7 @@
 {% block scripts %}
     {% load static %}
     <script src="{% static 'js/voice-recorder.js' %}?v=20260425-8"></script>
-    <script src="{% static 'js/channel-realtime.js' %}?v=20260425-3"></script>
+    <script src="{% static 'js/composer-emoji.js' %}?v=20260502-1"></script>
+    <script src="{% static 'js/channel-realtime.js' %}?v=20260502-5"></script>
     <script src="{% static 'js/voice-channel.js' %}?v=20260502-3"></script>
 {% endblock %}

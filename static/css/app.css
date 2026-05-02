@@ -73,6 +73,28 @@ body {
     background: rgba(255, 255, 255, 0.04);
 }
 
+.nav-notification-link {
+    position: relative;
+}
+
+.nav-notification-badge {
+    position: absolute;
+    top: -0.55rem;
+    right: -0.55rem;
+    display: grid;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    place-items: center;
+    padding: 0 0.28rem;
+    border: 2px solid rgba(8, 12, 19, 0.98);
+    border-radius: 999px;
+    background: #ff5c7a;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .user-chip:hover,
 .user-chip:focus {
     border-color: rgba(102, 217, 239, 0.45);
@@ -544,6 +566,20 @@ body {
     display: none;
 }
 
+.presence-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-left: 0.35rem;
+    border-radius: 50%;
+    background: rgba(157, 176, 199, 0.7);
+}
+
+.presence-dot.online {
+    background: #2bd576;
+    box-shadow: 0 0 0 3px rgba(43, 213, 118, 0.12);
+}
+
 .chat-main {
     display: flex;
     min-height: 0;
@@ -605,6 +641,38 @@ body {
     width: min(100%, 420px);
 }
 
+.reaction-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.45rem;
+}
+
+.reaction-row form {
+    margin: 0;
+}
+
+.reaction-pill {
+    display: inline-flex;
+    gap: 0.3rem;
+    align-items: center;
+    min-height: 30px;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--app-text);
+    font-size: 0.82rem;
+}
+
+.reaction-pill:hover,
+.reaction-pill:focus,
+.reaction-pill.active {
+    border-color: rgba(102, 217, 239, 0.44);
+    background: rgba(102, 217, 239, 0.12);
+    color: var(--app-accent);
+}
+
 .message-form {
     padding: 1rem;
     border-top: 1px solid var(--app-border);
@@ -633,6 +701,43 @@ body {
     gap: 0.5rem;
     align-items: center;
     min-width: 0;
+}
+
+.emoji-picker {
+    position: relative;
+    display: inline-flex;
+}
+
+.emoji-menu {
+    position: absolute;
+    bottom: calc(100% + 0.55rem);
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(4, 38px);
+    gap: 0.35rem;
+    padding: 0.55rem;
+    border: 1px solid rgba(102, 217, 239, 0.24);
+    border-radius: 14px;
+    background: rgba(20, 26, 38, 0.98);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+.emoji-menu button {
+    display: grid;
+    width: 38px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 1.1rem;
+}
+
+.emoji-menu button:hover,
+.emoji-menu button:focus {
+    border-color: rgba(102, 217, 239, 0.44);
+    background: rgba(102, 217, 239, 0.12);
 }
 
 .voice-recorder {

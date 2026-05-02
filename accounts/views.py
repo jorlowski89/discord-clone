@@ -1,6 +1,7 @@
 from django.contrib import messages
-from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -59,6 +60,37 @@ def register_view(request):
         form = RegisterForm()
 
     return render(request, "accounts/register.html", {"form": form})
+
+
+@require_POST
+@login_required
+def logout_view(request):
+    request.user.last_seen = None
+    request.user.save(update_fields=["last_seen"])
+    logout(request)
+    return redirect("home")
+
+
+@login_required
+def presence_status(request):
+    raw_ids = request.GET.get("ids", "")
+    user_ids = []
+    for raw_id in raw_ids.split(","):
+        if raw_id.strip().isdigit():
+            user_ids.append(int(raw_id))
+
+    users = User.objects.filter(id__in=user_ids[:100])
+    return JsonResponse(
+        {
+            "users": [
+                {
+                    "id": user.id,
+                    "online": user.is_online,
+                }
+                for user in users
+            ]
+        }
+    )
 
 
 @login_required

@@ -35,7 +35,7 @@
             <h2 class="h5 fw-bold mb-3">Twoje rozmowy</h2>
             <div class="stack-list">
                 {% for item in conversation_items %}
-                    <a class="dm-row" href="{{ item.conversation.get_absolute_url }}">
+                    <a class="dm-row" href="{{ item.conversation.get_absolute_url }}" data-presence-user data-user-id="{{ item.other_user.id }}">
                         <span class="message-avatar">
                             {% if item.other_user.avatar %}
                                 <img src="{{ item.other_user.avatar.url }}" alt="">
@@ -46,6 +46,11 @@
                         <span class="dm-row-body">
                             <strong>{{ item.other_user.username }}</strong>
                             <span class="text-secondary small">
+                                <span class="presence-dot {% if item.other_user.is_online %}online{% endif %}" aria-hidden="true" data-presence-dot></span>
+                                <span data-presence-label>
+                                    {% if item.other_user.is_online %}online{% else %}offline{% endif %}
+                                </span>
+                                &middot;
                                 {% if item.latest_message %}
                                     {{ item.latest_message.author.username }}: {{ item.latest_message.content|default:"[plik multimedialny]" }}
                                 {% else %}
@@ -66,7 +71,7 @@
             <h2 class="h5 fw-bold mb-3">Uzytkownicy</h2>
             <div class="stack-list">
                 {% for user in users %}
-                    <div class="stack-item">
+                    <div class="stack-item" data-presence-user data-user-id="{{ user.id }}">
                         <div class="d-flex align-items-center gap-2 min-w-0">
                             <span class="user-chip-avatar">
                                 {% if user.avatar %}
@@ -77,7 +82,11 @@
                             </span>
                             <div class="min-w-0">
                                 <strong>{{ user.username }}</strong>
-                                <div class="text-secondary small">{{ user.get_role_display }}</div>
+                                <div class="text-secondary small">
+                                    {{ user.get_role_display }}
+                                    <span class="presence-dot {% if user.is_online %}online{% endif %}" aria-hidden="true" data-presence-dot></span>
+                                    <span data-presence-label>{% if user.is_online %}online{% else %}offline{% endif %}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -97,4 +106,9 @@
         </section>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'js/presence.js' %}?v=20260502-1"></script>
 {% endblock %}

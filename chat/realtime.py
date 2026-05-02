@@ -16,6 +16,52 @@ def serialize_message(message):
     }
 
 
+def notify_user(user_id, payload):
+    channel_layer = get_channel_layer()
+    if channel_layer is None:
+        return
+
+    async_to_sync(channel_layer.group_send)(
+        f"user_notifications_{user_id}",
+        {
+            "type": "notification.event",
+            "payload": payload,
+        },
+    )
+
+
+def notify_channel_message(message):
+    url = message.channel.get_absolute_url()
+    payload = {
+        "kind": "channel",
+        "url": url,
+        "title": f"#{message.channel.name}",
+        "author": message.author.username,
+        "preview": message.content or "Nowa wiadomosc multimedialna",
+    }
+    member_ids = (
+        message.channel.members.exclude(id=message.author_id)
+        .values_list("id", flat=True)
+    )
+    for user_id in member_ids:
+        notify_user(user_id, payload)
+
+
+def notify_direct_message(message):
+    conversation = message.conversation
+    receiver = conversation.other_user(message.author)
+    notify_user(
+        receiver.id,
+        {
+            "kind": "direct",
+            "url": conversation.get_absolute_url(),
+            "title": f"DM od {message.author.username}",
+            "author": message.author.username,
+            "preview": message.content or "Nowa wiadomosc multimedialna",
+        },
+    )
+
+
 def broadcast_channel_message(message):
     channel_layer = get_channel_layer()
     if channel_layer is None:
@@ -28,6 +74,7 @@ def broadcast_channel_message(message):
             "message": serialize_message(message),
         },
     )
+    notify_channel_message(message)
 
 
 def broadcast_direct_message(message):
@@ -42,3 +89,4 @@ def broadcast_direct_message(message):
             "message": serialize_message(message),
         },
     )
+    notify_direct_message(message)

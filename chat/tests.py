@@ -3,7 +3,14 @@ from django.urls import reverse
 
 from accounts.models import User
 
-from .models import Channel, DirectConversation, DirectMessage, Message
+from .models import (
+    Channel,
+    DirectConversation,
+    DirectMessage,
+    DirectMessageReaction,
+    Message,
+    MessageReaction,
+)
 from .realtime import serialize_message
 
 
@@ -108,6 +115,40 @@ class ChannelFlowTests(TestCase):
         response = self.client.get(channel.get_absolute_url())
 
         self.assertContains(response, "Wysylanie wiadomosci jest zablokowane")
+
+    def test_user_can_toggle_channel_message_reaction(self):
+        channel = Channel.objects.create(name="General", created_by=self.user)
+        channel.members.add(self.user)
+        message = Message.objects.create(
+            channel=channel,
+            author=self.user,
+            content="React to me",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("toggle_message_reaction", args=[message.id]),
+            {"emoji": "👍"},
+        )
+
+        self.assertRedirects(response, channel.get_absolute_url())
+        self.assertTrue(
+            MessageReaction.objects.filter(
+                message=message,
+                author=self.user,
+                emoji="👍",
+            ).exists()
+        )
+
+        self.client.post(reverse("toggle_message_reaction", args=[message.id]), {"emoji": "👍"})
+
+        self.assertFalse(
+            MessageReaction.objects.filter(
+                message=message,
+                author=self.user,
+                emoji="👍",
+            ).exists()
+        )
 
     def test_channel_list_can_be_searched(self):
         Channel.objects.create(
@@ -236,6 +277,37 @@ class ChannelFlowTests(TestCase):
 
         self.assertRedirects(response, conversation.get_absolute_url())
         self.assertFalse(DirectMessage.objects.filter(conversation=conversation).exists())
+
+    def test_user_can_toggle_direct_message_reaction(self):
+        other_user = User.objects.create_user(
+            username="friend",
+            email="friend@example.com",
+            password="StrongPass123",
+        )
+        conversation, _ = DirectConversation.get_or_create_between(
+            self.user,
+            other_user,
+        )
+        message = DirectMessage.objects.create(
+            conversation=conversation,
+            author=other_user,
+            content="Private react",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("toggle_direct_message_reaction", args=[message.id]),
+            {"emoji": "❤️"},
+        )
+
+        self.assertRedirects(response, conversation.get_absolute_url())
+        self.assertTrue(
+            DirectMessageReaction.objects.filter(
+                message=message,
+                author=self.user,
+                emoji="❤️",
+            ).exists()
+        )
 
     def test_direct_user_list_can_be_searched(self):
         User.objects.create_user(

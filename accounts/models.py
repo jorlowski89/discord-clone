@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class UserRole(models.TextChoices):
@@ -18,6 +19,7 @@ class User(AbstractUser):
         default=UserRole.USER,
     )
     is_blocked = models.BooleanField(default=False)
+    last_seen = models.DateTimeField(blank=True, null=True)
 
     REQUIRED_FIELDS = ["email"]
 
@@ -28,6 +30,12 @@ class User(AbstractUser):
     @property
     def has_moderation_access(self) -> bool:
         return self.has_admin_access or self.role == UserRole.MODERATOR
+
+    @property
+    def is_online(self) -> bool:
+        if not self.last_seen:
+            return False
+        return self.last_seen >= timezone.now() - timezone.timedelta(minutes=5)
 
     def __str__(self) -> str:
         return self.username

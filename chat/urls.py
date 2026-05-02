@@ -16,6 +16,16 @@ urlpatterns = [
         views.direct_conversation_detail,
         name="direct_conversation_detail",
     ),
+    path(
+        "dm/messages/<int:message_id>/react/",
+        views.toggle_direct_message_reaction,
+        name="toggle_direct_message_reaction",
+    ),
+    path(
+        "messages/<int:message_id>/react/",
+        views.toggle_message_reaction,
+        name="toggle_message_reaction",
+    ),
     path("<slug:slug>/", views.channel_detail, name="channel_detail"),
     path("<slug:slug>/join/", views.channel_join, name="channel_join"),
 ]

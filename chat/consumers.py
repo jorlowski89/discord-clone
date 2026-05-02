@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.db import models
 
 from .models import Channel, DirectConversation, DirectMessage, Message
-from .realtime import serialize_message
+from .realtime import notify_channel_message, notify_direct_message, serialize_message
 
 
 VOICE_PARTICIPANTS = {}
@@ -90,6 +90,7 @@ class ChannelConsumer(AsyncWebsocketConsumer):
             author=self.user,
             content=content,
         )
+        notify_channel_message(message)
         return serialize_message(message)
 
 
@@ -171,7 +172,28 @@ class DirectConversationConsumer(AsyncWebsocketConsumer):
             author=self.user,
             content=content,
         )
+        notify_direct_message(message)
         return serialize_message(message)
+
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+
+        if not self.user.is_authenticated:
+            await self.close(code=4001)
+            return
+
+        self.group_name = f"user_notifications_{self.user.id}"
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        if hasattr(self, "group_name"):
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def notification_event(self, event):
+        await self.send(text_data=json.dumps(event["payload"]))
 
 
 class VoiceChannelConsumer(AsyncWebsocketConsumer):

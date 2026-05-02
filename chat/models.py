@@ -4,6 +4,13 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 
+REACTION_CHOICES = [
+    ("👍", "Lubię"),
+    ("❤️", "Super"),
+    ("😂", "Śmieszne"),
+]
+
+
 class Channel(models.Model):
     name = models.CharField(max_length=80, unique=True)
     slug = models.SlugField(max_length=90, unique=True, blank=True)
@@ -142,3 +149,55 @@ class DirectMessage(models.Model):
 
     def __str__(self) -> str:
         return f"DM from {self.author}"
+
+
+class MessageReaction(models.Model):
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="message_reactions",
+    )
+    emoji = models.CharField(max_length=8, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["message", "author", "emoji"],
+                name="unique_message_reaction",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.emoji} by {self.author}"
+
+
+class DirectMessageReaction(models.Model):
+    message = models.ForeignKey(
+        DirectMessage,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="direct_message_reactions",
+    )
+    emoji = models.CharField(max_length=8, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["message", "author", "emoji"],
+                name="unique_direct_message_reaction",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.emoji} by {self.author}"

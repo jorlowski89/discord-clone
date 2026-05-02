@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Channel, DirectConversation, DirectMessage, Message
+from .models import (
+    Channel,
+    DirectConversation,
+    DirectMessage,
+    DirectMessageReaction,
+    Message,
+    MessageReaction,
+)
 
 
 @admin.register(Channel)
@@ -33,3 +40,17 @@ class DirectMessageAdmin(admin.ModelAdmin):
         "conversation__user_one__username",
         "conversation__user_two__username",
     )
+
+
+@admin.register(MessageReaction)
+class MessageReactionAdmin(admin.ModelAdmin):
+    list_display = ("message", "author", "emoji", "created_at")
+    list_filter = ("emoji", "created_at")
+    search_fields = ("author__username", "message__content")
+
+
+@admin.register(DirectMessageReaction)
+class DirectMessageReactionAdmin(admin.ModelAdmin):
+    list_display = ("message", "author", "emoji", "created_at")
+    list_filter = ("emoji", "created_at")
+    search_fields = ("author__username", "message__content")

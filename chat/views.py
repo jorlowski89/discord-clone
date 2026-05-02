@@ -7,11 +7,38 @@ from django.views.decorators.http import require_POST
 
 from accounts.decorators import unblocked_required
 from .forms import ChannelForm, DirectMessageForm, MessageForm
-from .models import Channel, DirectConversation
+from .models import (
+    REACTION_CHOICES,
+    Channel,
+    DirectConversation,
+    DirectMessage,
+    DirectMessageReaction,
+    Message,
+    MessageReaction,
+)
 from .realtime import broadcast_channel_message, broadcast_direct_message
 
 
 User = get_user_model()
+
+
+def attach_reaction_summary(messages_list, user):
+    for message in messages_list:
+        reactions = list(message.reactions.select_related("author"))
+        summary = []
+        for emoji, _label in REACTION_CHOICES:
+            matching = [reaction for reaction in reactions if reaction.emoji == emoji]
+            summary.append(
+                {
+                    "emoji": emoji,
+                    "count": len(matching),
+                    "user_reacted": any(
+                        reaction.author_id == user.id for reaction in matching
+                    ),
+                }
+            )
+        message.reaction_summary = summary
+    return messages_list
 
 
 @login_required
@@ -97,11 +124,13 @@ def channel_detail(request, slug):
     else:
         form = MessageForm()
 
-    messages_list = (
+    messages_list = list(
         channel.messages.select_related("author")
+        .prefetch_related("reactions")
         .filter(is_deleted=False)
         .order_by("created_at")
     )
+    attach_reaction_summary(messages_list, request.user)
     return render(
         request,
         "chat/channel_detail.html",
@@ -205,11 +234,13 @@ def direct_conversation_detail(request, pk):
     else:
         form = DirectMessageForm()
 
-    messages_list = (
+    messages_list = list(
         conversation.messages.select_related("author")
+        .prefetch_related("reactions")
         .filter(is_deleted=False)
         .order_by("created_at")
     )
+    attach_reaction_summary(messages_list, request.user)
     return render(
         request,
         "chat/direct_detail.html",
@@ -220,3 +251,58 @@ def direct_conversation_detail(request, pk):
             "form": form,
         },
     )
+
+
+@login_required
+@unblocked_required
+@require_POST
+def toggle_message_reaction(request, message_id):
+    message = get_object_or_404(
+        Message,
+        pk=message_id,
+        is_deleted=False,
+        channel__members=request.user,
+    )
+    emoji = request.POST.get("emoji")
+    if emoji not in dict(REACTION_CHOICES):
+        messages.error(request, "Nieznana reakcja.")
+        return redirect(message.channel)
+
+    reaction, created = MessageReaction.objects.get_or_create(
+        message=message,
+        author=request.user,
+        emoji=emoji,
+    )
+    if not created:
+        reaction.delete()
+
+    return redirect(request.POST.get("next") or message.channel.get_absolute_url())
+
+
+@login_required
+@unblocked_required
+@require_POST
+def toggle_direct_message_reaction(request, message_id):
+    message = get_object_or_404(
+        DirectMessage.objects.select_related("conversation"),
+        pk=message_id,
+        is_deleted=False,
+    )
+    if not message.conversation.includes(request.user):
+        messages.error(request, "Nie masz dostepu do tej rozmowy.")
+        return redirect("direct_conversation_list")
+
+    emoji = request.POST.get("emoji")
+    if emoji not in dict(REACTION_CHOICES):
+        messages.error(request, "Nieznana reakcja.")
+        return redirect(message.conversation)
+
+    reaction, created = DirectMessageReaction.objects.get_or_create(
+        message=message,
+        author=request.user,
+        emoji=emoji,
+    )
+    if not created:
+        reaction.delete()
+
+    return redirect(request.POST.get("next") or message.conversation.get_absolute_url())

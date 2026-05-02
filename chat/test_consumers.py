@@ -1,4 +1,5 @@
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from channels.testing import WebsocketCommunicator
 from django.test import TransactionTestCase
 
@@ -7,6 +8,7 @@ from accounts.models import User
 from .consumers import (
     ChannelConsumer,
     DirectConversationConsumer,
+    NotificationConsumer,
     VOICE_PARTICIPANTS,
     VoiceChannelConsumer,
 )
@@ -252,3 +254,46 @@ class VoiceChannelConsumerTests(TransactionTestCase):
         connected = async_to_sync(websocket_flow)()
 
         self.assertFalse(connected)
+
+
+class NotificationConsumerTests(TransactionTestCase):
+    def make_communicator(self, user):
+        communicator = WebsocketCommunicator(
+            NotificationConsumer.as_asgi(),
+            "/ws/notifications/",
+        )
+        communicator.scope["user"] = user
+        return communicator
+
+    def test_authenticated_user_receives_notification_event(self):
+        user = User.objects.create_user(
+            username="notify",
+            email="notify@example.com",
+            password="StrongPass123",
+        )
+
+        async def websocket_flow():
+            communicator = self.make_communicator(user)
+            connected, _ = await communicator.connect()
+            self.assertTrue(connected)
+
+            await get_channel_layer().group_send(
+                f"user_notifications_{user.id}",
+                {
+                    "type": "notification.event",
+                    "payload": {
+                        "kind": "direct",
+                        "title": "DM",
+                        "preview": "Hej",
+                        "url": "/channels/dm/1/",
+                    },
+                },
+            )
+            response = await communicator.receive_json_from()
+            await communicator.disconnect()
+            return response
+
+        response = async_to_sync(websocket_flow)()
+
+        self.assertEqual(response["kind"], "direct")
+        self.assertEqual(response["preview"], "Hej")
