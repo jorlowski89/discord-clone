@@ -72,7 +72,7 @@
             const image = document.createElement("img");
             image.className = "message-image";
             image.src = message.image_url;
-            image.alt = "Obraz z wiadomosci";
+            image.alt = "Obraz z wiadomości";
             body.append(image);
         }
 

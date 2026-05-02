@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Kanaly | PyCord{% endblock %}
+{% block title %}Kanały | PyCord{% endblock %}
 
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <span class="badge text-bg-info text-dark mb-2">Etap 2</span>
-        <h1 class="h3 fw-bold mb-1">Kanaly tekstowe</h1>
-        <p class="text-secondary mb-0">Tworz pokoje, dolaczaj do rozmow i sprawdzaj historie wiadomosci.</p>
+        <h1 class="h3 fw-bold mb-1">Kanały tekstowe</h1>
+        <p class="text-secondary mb-0">Twórz pokoje, dołączaj do rozmów i sprawdzaj historię wiadomości.</p>
     </div>
     {% if request.user.is_blocked %}
-        <button class="btn btn-outline-secondary" type="button" disabled>Nowy kanal</button>
+        <button class="btn btn-outline-secondary" type="button" disabled>Nowy kanał</button>
     {% else %}
-        <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Nowy kanal</a>
+        <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Nowy kanał</a>
     {% endif %}
 </div>
 
 <form class="search-bar mb-4" method="get" role="search">
-    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Szukaj kanalow" aria-label="Szukaj kanalow">
+    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Szukaj kanałów" aria-label="Szukaj kanałów">
     <button class="btn btn-outline-info" type="submit">Szukaj</button>
     {% if query %}
-        <a class="btn btn-outline-light" href="{% url 'channel_list' %}">Wyczysc</a>
+        <a class="btn btn-outline-light" href="{% url 'channel_list' %}">Wyczyść</a>
     {% endif %}
 </form>
 
@@ -28,8 +28,8 @@
     <div class="blocked-notice mb-4">
         <strong>Konto zablokowane</strong>
         <p class="mb-0">
-            Mozesz przegladac dostepne kanaly, ale tworzenie nowych kanalow i dolaczanie
-            do kolejnych rozmow jest wylaczone.
+            Możesz przeglądać dostępne kanały, ale tworzenie nowych kanałów i dołączanie
+            do kolejnych rozmów jest wyłączone.
         </p>
     </div>
 {% endif %}
@@ -51,23 +51,23 @@
                 </div>
 
                 {% if channel.id in joined_channel_ids %}
-                    <a href="{{ channel.get_absolute_url }}" class="btn btn-outline-light w-100">Otworz</a>
+                    <a href="{{ channel.get_absolute_url }}" class="btn btn-outline-light w-100">Otwórz</a>
                 {% elif request.user.is_blocked %}
                     <button class="btn btn-outline-secondary w-100" type="button" disabled>Tylko podglad</button>
                 {% else %}
-                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark w-100">Dolacz</a>
+                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark w-100">Dołącz</a>
                 {% endif %}
             </div>
         </div>
     {% empty %}
         <div class="col-12">
             <div class="auth-card text-center">
-                <h2 class="h4 fw-bold mb-2">Nie ma jeszcze kanalow</h2>
+                <h2 class="h4 fw-bold mb-2">Nie ma jeszcze kanałów</h2>
                 {% if request.user.is_blocked %}
-                    <p class="text-secondary mb-0">Zablokowane konto nie moze utworzyc pierwszego kanalu.</p>
+                    <p class="text-secondary mb-0">Zablokowane konto nie może utwórzyc pierwszego kanału.</p>
                 {% else %}
-                    <p class="text-secondary mb-4">Utworz pierwszy kanal tekstowy do testow.</p>
-                    <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Utworz kanal</a>
+                    <p class="text-secondary mb-4">Utwórz pierwszy kanał tekstowy do testow.</p>
+                    <a href="{% url 'channel_create' %}" class="btn btn-info text-dark">Utwórz kanał</a>
                 {% endif %}
             </div>
         </div>

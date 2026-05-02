@@ -114,7 +114,7 @@ class ChannelFlowTests(TestCase):
 
         response = self.client.get(channel.get_absolute_url())
 
-        self.assertContains(response, "Wysylanie wiadomosci jest zablokowane")
+        self.assertContains(response, "Wysylanie wiadomości jest zablokowane")
 
     def test_user_can_toggle_channel_message_reaction(self):
         channel = Channel.objects.create(name="General", created_by=self.user)

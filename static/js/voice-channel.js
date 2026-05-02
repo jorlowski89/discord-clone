@@ -43,7 +43,7 @@
         }
 
         const count = participants.querySelectorAll(".voice-participant").length;
-        participantCount.textContent = `W rozmowie: ${count}`;
+        participantCount.textContent = `W rozmówie: ${count}`;
     };
 
     const displayName = (userId, username) => (
@@ -240,7 +240,7 @@
 
         socket.addEventListener("open", () => {
             if (!isInVoice) {
-                setStatus("Gotowy do rozmowy audio.");
+                setStatus("Gotowy do rozmówy audio.");
             }
         });
 
@@ -249,7 +249,7 @@
             try {
                 await handleSignal(payload);
             } catch (error) {
-                setStatus("Nie udalo sie zestawic polaczenia audio");
+                setStatus("Nie udało się zestawić połączenia audio");
             }
         });
 
@@ -294,7 +294,7 @@
         closeAllPeers();
         isInVoice = false;
         setActive(false);
-        setStatus("Rozlaczono");
+        setStatus("Rozłączono");
     };
 
     const joinVoice = async () => {
@@ -303,7 +303,7 @@
         }
 
         joinButton.disabled = true;
-        setStatus("Laczenie z mikrofonem...");
+        setStatus("Łączenie z mikrofonem...");
 
         try {
             await waitForOpenSocket();
@@ -315,10 +315,10 @@
             isInVoice = true;
             sendSignal({ type: "join_voice" });
             setActive(true);
-            setStatus("Polaczono z kanalem glosowym");
+            setStatus("Połączono z kanałum głosowym");
             joinButton.disabled = false;
         } catch (error) {
-            setStatus("Nie udalo sie wlaczyc mikrofonu");
+            setStatus("Nie udało się włączyć mikrofonu");
             joinButton.disabled = false;
             setActive(false);
         }
@@ -336,7 +336,7 @@
         || !navigator.mediaDevices.getUserMedia
     ) {
         joinButton.disabled = true;
-        setStatus("Ta przegladarka nie obsluguje rozmow glosowych");
+        setStatus("Ta przeglądarka nie obsługuje rozmów głosowych");
         return;
     }
 

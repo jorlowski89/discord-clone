@@ -57,7 +57,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, "Konto zostalo utworzone.")
+            messages.success(request, "Konto zostało utwórzone.")
             return redirect("home")
     else:
         form = RegisterForm()
@@ -73,14 +73,14 @@ def claim_first_admin(request):
     ).exists()
 
     if has_admin:
-        messages.error(request, "Administrator zostal juz utworzony.")
+        messages.error(request, "Administrator został juz utwórzony.")
         return redirect("home")
 
     request.user.role = UserRole.ADMIN
     request.user.is_staff = True
     request.user.is_superuser = True
     request.user.save(update_fields=["role", "is_staff", "is_superuser"])
-    messages.success(request, "Twoje konto zostalo pierwszym administratorem.")
+    messages.success(request, "Twoje konto zostało pierwszym administratorem.")
     return redirect("admin_panel")
 
 
@@ -122,7 +122,7 @@ def profile_view(request):
 
     if request.method == "POST":
         if request.user.is_blocked:
-            messages.error(request, "Zablokowane konto nie moze edytowac profilu ani hasla.")
+            messages.error(request, "Zablokowane konto nie może edytować profilu ani hasła.")
             return redirect("profile")
 
         if request.POST.get("action") == "password":
@@ -130,13 +130,13 @@ def profile_view(request):
             if password_form.is_valid():
                 user = password_form.save()
                 update_session_auth_hash(request, user)
-                messages.success(request, "Haslo zostalo zmienione.")
+                messages.success(request, "Hasło zostało zmieńione.")
                 return redirect("profile")
         else:
             profile_form = ProfileForm(request.POST, request.FILES, instance=request.user)
             if profile_form.is_valid():
                 profile_form.save()
-                messages.success(request, "Profil zostal zapisany.")
+                messages.success(request, "Profil został zapisany.")
                 return redirect("profile")
 
     return render(
@@ -215,16 +215,16 @@ def update_user_role(request, user_id):
     new_role = request.POST.get("role")
 
     if new_role not in UserRole.values:
-        messages.error(request, "Wybrana rola jest nieprawidlowa.")
+        messages.error(request, "Wybrana rola jest nieprawidłowa.")
         return redirect("admin_panel")
 
     if user == request.user and new_role != UserRole.ADMIN:
-        messages.error(request, "Nie mozesz odebrac sobie roli administratora.")
+        messages.error(request, "Nie możesz odebrać sobie roli administratora.")
         return redirect("admin_panel")
 
     user.role = new_role
     user.save(update_fields=["role"])
-    messages.success(request, f"Rola uzytkownika {user.username} zostala zmieniona.")
+    messages.success(request, f"Rola użytkownika {user.username} została zmieńiona.")
     return redirect("admin_panel")
 
 
@@ -238,13 +238,13 @@ def toggle_user_block(request, user_id):
     )
 
     if not user_can_toggle_block(request.user, user):
-        messages.error(request, "Nie mozesz zmienic blokady tego uzytkownika.")
+        messages.error(request, "Nie możesz zmieńic blokady tego użytkownika.")
         return redirect(next_url)
 
     user.is_blocked = not user.is_blocked
     user.save(update_fields=["is_blocked"])
     state = "zablokowany" if user.is_blocked else "odblokowany"
-    messages.success(request, f"Uzytkownik {user.username} zostal {state}.")
+    messages.success(request, f"Użytkownik {user.username} został {state}.")
     return redirect(next_url)
 
 
@@ -255,12 +255,12 @@ def delete_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
 
     if user == request.user:
-        messages.error(request, "Nie mozesz usunac samego siebie.")
+        messages.error(request, "Nie możesz usunąć samego siebie.")
         return redirect("admin_panel")
 
     username = user.username
     user.delete()
-    messages.success(request, f"Uzytkownik {username} zostal usuniety.")
+    messages.success(request, f"Użytkownik {username} został usunięty.")
     return redirect("admin_panel")
 
 
@@ -271,7 +271,7 @@ def delete_message(request, message_id):
     message = get_object_or_404(Message, pk=message_id, is_deleted=False)
     message.is_deleted = True
     message.save(update_fields=["is_deleted"])
-    messages.success(request, "Wiadomosc zostala usunieta.")
+    messages.success(request, "Wiadomość została usunięta.")
     return redirect(request.POST.get("next") or message.channel.get_absolute_url())
 
 
@@ -282,7 +282,7 @@ def delete_channel(request, channel_id):
     channel = get_object_or_404(Channel, pk=channel_id)
     channel_name = channel.name
     channel.delete()
-    messages.success(request, f"Kanal #{channel_name} zostal usuniety.")
+    messages.success(request, f"Kanał #{channel_name} został usunięty.")
     return redirect("moderation_panel")
 
 

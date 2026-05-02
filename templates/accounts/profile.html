@@ -19,8 +19,8 @@
                 <div class="blocked-notice mb-4">
                     <strong>Konto zablokowane</strong>
                     <p class="mb-0">
-                        Moderator ograniczyl Twoje konto. Mozesz nadal przegladac kanaly
-                        oraz profil, ale dodawanie, edycja i usuwanie tresci oraz zmiana hasla sa wylaczone.
+                        Moderator ograniczył Twoje konto. Możesz nadal przeglądać kanały
+                        oraz profil, ale dodawanie, edycja i usuwanie treści oraz zmiana hasła są wyłączone.
                     </p>
                 </div>
             {% endif %}
@@ -53,7 +53,7 @@
 
                 <hr class="profile-divider">
 
-                <h2 class="h5 fw-bold mb-3">Zmiana hasla</h2>
+                <h2 class="h5 fw-bold mb-3">Zmiana hasła</h2>
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <input type="hidden" name="action" value="password">
@@ -69,7 +69,7 @@
                     {% for error in password_form.non_field_errors %}
                         <div class="alert alert-danger">{{ error }}</div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-outline-info">Zmien haslo</button>
+                    <button type="submit" class="btn btn-outline-info">Zmień hasło</button>
                 </form>
             {% endif %}
         </div>

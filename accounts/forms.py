@@ -15,10 +15,10 @@ class LoginForm(AuthenticationForm):
         widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Login"}),
     )
     password = forms.CharField(
-        label="Haslo",
+        label="Hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Haslo"}
+            attrs={"class": "form-control", "placeholder": "Hasło"}
         ),
     )
 
@@ -39,22 +39,22 @@ class RegisterForm(UserCreationForm):
             attrs={
                 "class": "form-control",
                 "rows": 3,
-                "placeholder": "Napisz kilka slow o sobie",
+                "placeholder": "Napisz kilka słów o sobie",
             }
         ),
     )
     password1 = forms.CharField(
-        label="Haslo",
+        label="Hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Haslo"}
+            attrs={"class": "form-control", "placeholder": "Hasło"}
         ),
     )
     password2 = forms.CharField(
-        label="Powtorz haslo",
+        label="Powtórz hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Powtorz haslo"}
+            attrs={"class": "form-control", "placeholder": "Powtórz hasło"}
         ),
     )
 
@@ -86,23 +86,23 @@ class ProfileForm(UserChangeForm):
 
 class ProfilePasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(
-        label="Aktualne haslo",
+        label="Aktualne hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Aktualne haslo"}
+            attrs={"class": "form-control", "placeholder": "Aktualne hasło"}
         ),
     )
     new_password1 = forms.CharField(
-        label="Nowe haslo",
+        label="Nowe hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Nowe haslo"}
+            attrs={"class": "form-control", "placeholder": "Nowe hasło"}
         ),
     )
     new_password2 = forms.CharField(
-        label="Powtorz nowe haslo",
+        label="Powtórz nowe hasło",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Powtorz nowe haslo"}
+            attrs={"class": "form-control", "placeholder": "Powtórz nowe hasło"}
         ),
     )

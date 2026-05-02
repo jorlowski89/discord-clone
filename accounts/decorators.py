@@ -29,7 +29,7 @@ def unblocked_required(view_func):
     @wraps(view_func)
     def wrapped(request, *args, **kwargs):
         if request.user.is_blocked:
-            messages.error(request, "Twoje konto jest zablokowane. Ta akcja jest niedostepna.")
+            messages.error(request, "Twoje konto jest zablokowane. Ta akcja jest niedostępna.")
             return redirect("home")
         return view_func(request, *args, **kwargs)
 

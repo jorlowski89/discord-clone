@@ -86,7 +86,7 @@
 
         if (!navigator.mediaDevices || !window.MediaRecorder) {
             startButton.disabled = true;
-            startButton.title = "Nagrywanie nie jest obslugiwane w tej przegladarce.";
+            startButton.title = "Nagrywanie nie jest obsługiwane w tej przeglądarce.";
             return;
         }
 
@@ -103,7 +103,7 @@
 
         const setRecordedFile = (blob) => {
             const extension = blob.type.includes("ogg") ? "ogg" : "webm";
-            const file = new File([blob], `glosowka-${Date.now()}.${extension}`, {
+            const file = new File([blob], `głosowka-${Date.now()}.${extension}`, {
                 type: blob.type || "audio/webm",
             });
             const transfer = new DataTransfer();
@@ -211,7 +211,7 @@
                         player.classList.remove("d-none");
                     }
                     if (status) {
-                        status.textContent = "Glosowka gotowa";
+                        status.textContent = "Głosówka gotowa";
                         status.classList.remove("d-none");
                     }
                     startButton.disabled = false;
@@ -227,7 +227,7 @@
                 clearButton.disabled = true;
                 setButtonVisibility("recording");
             } catch (error) {
-                startButton.title = "Nie udalo sie wlaczyc mikrofonu.";
+                startButton.title = "Nie udało się włączyć mikrofonu.";
                 startButton.disabled = false;
                 stopButton.disabled = true;
                 clearButton.disabled = true;

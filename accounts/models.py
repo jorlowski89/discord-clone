@@ -6,7 +6,7 @@ from django.utils import timezone
 class UserRole(models.TextChoices):
     ADMIN = "admin", "Administrator"
     MODERATOR = "moderator", "Moderator"
-    USER = "user", "Uzytkownik"
+    USER = "user", "Użytkownik"
 
 
 class User(AbstractUser):

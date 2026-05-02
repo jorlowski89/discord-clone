@@ -7,7 +7,7 @@
     <div class="col-md-9 col-lg-6">
         <div class="auth-card">
             <h1 class="h3 fw-bold mb-3">Rejestracja</h1>
-            <p class="text-secondary mb-4">Utworz konto, aby testowac kolejne etapy aplikacji.</p>
+            <p class="text-secondary mb-4">Utwórz konto, aby testować kolejne etapy aplikacji.</p>
             <form method="post" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
@@ -22,7 +22,7 @@
                 {% for error in form.non_field_errors %}
                     <div class="alert alert-danger">{{ error }}</div>
                 {% endfor %}
-                <button type="submit" class="btn btn-info text-dark w-100">Utworz konto</button>
+                <button type="submit" class="btn btn-info text-dark w-100">Utwórz konto</button>
             </form>
         </div>
     </div>

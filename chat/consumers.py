@@ -50,7 +50,7 @@ class ChannelConsumer(AsyncWebsocketConsumer):
             await self.send_json(
                 {
                     "type": "error",
-                    "message": "Twoje konto jest zablokowane i nie moze pisac.",
+                    "message": "Twoje konto jest zablokowane i nie może pisac.",
                 }
             )
             return
@@ -132,7 +132,7 @@ class DirectConversationConsumer(AsyncWebsocketConsumer):
             await self.send_json(
                 {
                     "type": "error",
-                    "message": "Twoje konto jest zablokowane i nie moze pisac.",
+                    "message": "Twoje konto jest zablokowane i nie może pisac.",
                 }
             )
             return
@@ -254,7 +254,7 @@ class VoiceChannelConsumer(AsyncWebsocketConsumer):
                 await self.send_json(
                     {
                         "type": "error",
-                        "message": "Zablokowane konto nie moze dolaczyc do rozmowy glosowej.",
+                        "message": "Zablokowane konto nie może dołączyć do rozmowy głosowej.",
                     }
                 )
                 return

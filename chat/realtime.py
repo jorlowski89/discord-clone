@@ -37,7 +37,7 @@ def notify_channel_message(message):
         "url": url,
         "title": f"#{message.channel.name}",
         "author": message.author.username,
-        "preview": message.content or "Nowa wiadomosc multimedialna",
+        "preview": message.content or "Nowa wiadomość multimedialna",
     }
     member_ids = (
         message.channel.members.exclude(id=message.author_id)
@@ -57,7 +57,7 @@ def notify_direct_message(message):
             "url": conversation.get_absolute_url(),
             "title": f"DM od {message.author.username}",
             "author": message.author.username,
-            "preview": message.content or "Nowa wiadomosc multimedialna",
+            "preview": message.content or "Nowa wiadomość multimedialna",
         },
     )
 

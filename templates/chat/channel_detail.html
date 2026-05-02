@@ -5,27 +5,27 @@
 {% block content %}
 <div class="chat-shell">
     <aside class="chat-sidebar">
-        <a href="{% url 'channel_list' %}" class="btn btn-outline-light btn-sm w-100 mb-3">Wszystkie kanaly</a>
+        <a href="{% url 'channel_list' %}" class="btn btn-outline-light btn-sm w-100 mb-3">Wszystkie kanały</a>
         <h1 class="h4 fw-bold mb-1"># {{ channel.name }}</h1>
-        <p class="text-secondary small mb-3">{{ channel.description|default:"Kanal tekstowy" }}</p>
+        <p class="text-secondary small mb-3">{{ channel.description|default:"Kanał tekstowy" }}</p>
         <div class="small text-secondary">
-            Czlonkowie: {{ channel.members.count }}
+            Członkowie: {{ channel.members.count }}
         </div>
         {% if is_member %}
             <div class="voice-channel-panel mt-4" data-voice-channel data-channel-slug="{{ channel.slug }}" data-current-user-id="{{ request.user.id }}">
                 <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
-                    <strong>Kanal glosowy</strong>
+                    <strong>Kanał głosowy</strong>
                     <span class="badge text-bg-dark border border-info-subtle">audio</span>
                 </div>
-                <div class="voice-count small text-secondary mb-2" data-voice-count>W rozmowie: 0</div>
+                <div class="voice-count small text-secondary mb-2" data-voice-count>W rozmówie: 0</div>
                 <div class="voice-participants mb-3" data-voice-participants></div>
                 {% if request.user.is_blocked %}
-                    <p class="text-secondary small mb-0">Zablokowane konto nie moze dolaczyc do rozmowy glosowej.</p>
+                    <p class="text-secondary small mb-0">Zablokowane konto nie może dołączyć do rozmówy głosowej.</p>
                 {% else %}
-                    <p class="text-secondary small mb-3" data-voice-status>Gotowy do rozmowy audio.</p>
+                    <p class="text-secondary small mb-3" data-voice-status>Gotowy do rozmówy audio.</p>
                     <div class="d-flex flex-wrap gap-2 mb-3">
-                        <button class="btn btn-sm btn-info text-dark" type="button" data-voice-join>Dolacz</button>
-                        <button class="btn btn-sm btn-outline-warning d-none" type="button" data-voice-leave disabled>Rozlacz</button>
+                        <button class="btn btn-sm btn-info text-dark" type="button" data-voice-join>Dołącz</button>
+                        <button class="btn btn-sm btn-outline-warning d-none" type="button" data-voice-leave disabled>Rozłącz</button>
                     </div>
                     <div class="voice-remote-audio" data-voice-remote-audio></div>
                 {% endif %}
@@ -36,14 +36,14 @@
     <section class="chat-main">
         {% if not is_member %}
             <div class="empty-chat">
-                <h2 class="h4 fw-bold mb-2">Dolacz do kanalu</h2>
+                <h2 class="h4 fw-bold mb-2">Dołącz do kanału</h2>
                 {% if request.user.is_blocked %}
                     <p class="text-secondary mb-0">
-                        Zablokowane konto nie moze dolaczac do nowych kanalow.
+                        Zablokowane konto nie może dołączać do nowych kanałów.
                     </p>
                 {% else %}
-                    <p class="text-secondary mb-4">Historia wiadomosci jest dostepna po dolaczeniu.</p>
-                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark">Dolacz</a>
+                    <p class="text-secondary mb-4">Historia wiadomości jest dostępna po dołączeniu.</p>
+                    <a href="{% url 'channel_join' channel.slug %}" class="btn btn-info text-dark">Dołącz</a>
                 {% endif %}
             </div>
         {% else %}
@@ -62,10 +62,10 @@
                                 <strong>{{ message.author.username }}</strong>
                                 <span class="text-secondary small">{{ message.created_at|date:"d.m.Y H:i" }}</span>
                                 {% if request.user.has_moderation_access %}
-                                    <form class="ms-auto" method="post" action="{% url 'delete_message' message.id %}" onsubmit="return confirm('Czy na pewno chcesz usunac te wiadomosc?');">
+                                    <form class="ms-auto" method="post" action="{% url 'delete_message' message.id %}" onsubmit="return confirm('Czy na pewno chcesz usunąć tę wiadomość?');">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ channel.get_absolute_url }}">
-                                        <button class="message-delete-btn" type="submit">Usun</button>
+                                        <button class="message-delete-btn" type="submit">Usuń</button>
                                     </form>
                                 {% endif %}
                             </div>
@@ -73,7 +73,7 @@
                                 <p class="mb-2">{{ message.content|linebreaksbr }}</p>
                             {% endif %}
                             {% if message.image %}
-                                <img class="message-image" src="{{ message.image.url }}" alt="Obraz z wiadomosci">
+                                <img class="message-image" src="{{ message.image.url }}" alt="Obraz z wiadomości">
                             {% endif %}
                             {% if message.audio %}
                                 <audio controls class="message-audio">
@@ -102,7 +102,7 @@
                 {% empty %}
                     <div class="empty-chat">
                         <h2 class="h4 fw-bold mb-2">Jeszcze cisza</h2>
-                        <p class="text-secondary mb-0">Wyslij pierwsza wiadomosc na tym kanale.</p>
+                        <p class="text-secondary mb-0">Wyślij pierwszą wiadomość na tym kanale.</p>
                     </div>
                 {% endfor %}
             </div>
@@ -110,9 +110,9 @@
             {% if request.user.is_blocked %}
                 <div class="message-form">
                     <div class="blocked-notice mb-0">
-                        <strong>Wysylanie wiadomosci jest zablokowane</strong>
+                        <strong>Wysylanie wiadomości jest zablokowane</strong>
                         <p class="mb-0">
-                            Mozesz czytac kanal, ale moderator ograniczyl mozliwosc pisania z tego konta.
+                            Możesz czytać kanał, ale moderator ograniczył możliwość pisania z tego konta.
                         </p>
                     </div>
                 </div>
@@ -156,7 +156,7 @@
                             </div>
                             <div class="voice-recorder" data-voice-recorder>
                                 {{ form.audio }}
-                                <button class="icon-btn" type="button" data-record-start title="Nagraj glosowke" aria-label="Nagraj glosowke">
+                                <button class="icon-btn" type="button" data-record-start title="Nagraj głosówkę" aria-label="Nagraj głosówkę">
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
                                         <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path>
                                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -168,7 +168,7 @@
                                         <rect x="7" y="7" width="10" height="10" rx="1"></rect>
                                     </svg>
                                 </button>
-                                <button class="icon-btn muted d-none" type="button" data-record-clear disabled title="Usun nagranie" aria-label="Usun nagranie">
+                                <button class="icon-btn muted d-none" type="button" data-record-clear disabled title="Usuń nagranie" aria-label="Usuń nagranie">
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
                                         <path d="M3 6h18"></path>
                                         <path d="M8 6V4h8v2"></path>
@@ -178,7 +178,7 @@
                                 <span class="composer-status d-none" data-record-status></span>
                                 <audio class="d-none" data-record-preview></audio>
                                 <div class="voice-preview-player d-none" data-record-player>
-                                    <button class="voice-play-btn" type="button" data-record-play title="Odtworz glosowke" aria-label="Odtworz glosowke">
+                                    <button class="voice-play-btn" type="button" data-record-play title="Odtwórz głosówkę" aria-label="Odtwórz głosówkę">
                                         <svg viewBox="0 0 24 24" aria-hidden="true">
                                             <path data-play-icon d="M8 5v14l11-7Z"></path>
                                             <g data-pause-icon class="d-none">
@@ -188,7 +188,7 @@
                                         </svg>
                                     </button>
                                     <span class="voice-time" data-record-time>0:00</span>
-                                    <input class="voice-progress" type="range" min="0" max="100" value="0" step="1" data-record-progress aria-label="Postep glosowki">
+                                    <input class="voice-progress" type="range" min="0" max="100" value="0" step="1" data-record-progress aria-label="Postęp głosówki">
                                 </div>
                             </div>
                             {% for error in form.image.errors %}
@@ -198,7 +198,7 @@
                                 <div class="text-danger small mt-1">{{ error }}</div>
                             {% endfor %}
                         </div>
-                        <button class="icon-btn send" type="submit" title="Wyslij" aria-label="Wyslij">
+                        <button class="icon-btn send" type="submit" title="Wyślij" aria-label="Wyślij">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="m22 2-7 20-4-9-9-4Z"></path>
                                 <path d="M22 2 11 13"></path>

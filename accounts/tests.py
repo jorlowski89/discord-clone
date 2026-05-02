@@ -247,7 +247,7 @@ class AccountsFlowTests(TestCase):
         response = self.client.get("/brak-takiej-strony/")
 
         self.assertEqual(response.status_code, 404)
-        self.assertContains(response, "Strona nie zostala znaleziona", status_code=404)
+        self.assertContains(response, "Strona nie została znaleziona", status_code=404)
 
     def test_uploaded_media_is_served_by_url(self):
         media_file = settings.MEDIA_ROOT / "test-media.txt"
@@ -345,7 +345,7 @@ class AccountsFlowTests(TestCase):
         message = Message.objects.create(
             channel=channel,
             author=author,
-            content="Niegrzeczna wiadomosc",
+            content="Niegrzeczna wiadomość",
         )
         self.client.force_login(moderator)
 
@@ -421,8 +421,8 @@ class AccountsFlowTests(TestCase):
 
         response = self.client.get(reverse("moderation_panel"))
 
-        self.assertContains(response, "Kanaly")
-        self.assertContains(response, "Usun kanal")
+        self.assertContains(response, "Kanały")
+        self.assertContains(response, "Usuń kanał")
         self.assertContains(response, "# General")
 
     def test_moderator_does_not_see_channel_management(self):
@@ -437,7 +437,7 @@ class AccountsFlowTests(TestCase):
 
         response = self.client.get(reverse("moderation_panel"))
 
-        self.assertNotContains(response, "Usun kanal")
+        self.assertNotContains(response, "Usuń kanał")
 
     def test_moderation_panel_shows_user_blocking(self):
         admin = User.objects.create_user(
@@ -456,7 +456,7 @@ class AccountsFlowTests(TestCase):
         response = self.client.get(reverse("moderation_panel"))
 
         self.assertContains(response, "Zablokuj")
-        self.assertContains(response, "Uzytkownicy</h2>")
+        self.assertContains(response, "Użytkownicy</h2>")
 
     def test_admin_can_delete_user(self):
         admin = User.objects.create_user(

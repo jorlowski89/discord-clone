@@ -8,9 +8,9 @@
         <div class="home-command">
             <div class="home-command-copy">
                 <span class="badge text-bg-info text-dark mb-3">PyCord</span>
-                <h1 class="display-6 fw-bold mb-2">Dobrze Cie widziec, {{ request.user.username }}</h1>
+                <h1 class="display-6 fw-bold mb-2">Dobrze Cię widzieć, {{ request.user.username }}</h1>
                 <p class="text-secondary mb-0">
-                    Twoje centrum rozmow: kanaly grupowe, prywatne DM-y, glosowki i multimedia.
+                    Twoje centrum rozmów: kanały grupowe, prywatne DM-y, głosówki i multimedia.
                 </p>
             </div>
             <div class="home-command-user">
@@ -32,7 +32,7 @@
             <div class="blocked-notice">
                 <strong>Tryb tylko do odczytu</strong>
                 <p class="mb-0">
-                    Mozesz przegladac istniejace rozmowy, ale pisanie, tworzenie i edycja sa wylaczone.
+                    Możesz przeglądać istniejące rozmówy, ale pisanie, tworzenie i edycja są wyłączone.
                 </p>
             </div>
         {% endif %}
@@ -41,7 +41,7 @@
             <div class="blocked-notice">
                 <strong>Brak administratora</strong>
                 <p class="mb-3">
-                    To konto moze zostac pierwszym administratorem tej instalacji.
+                    To konto może zostać pierwszym administratorem tej instalacji.
                 </p>
                 <form method="post" action="{% url 'claim_first_admin' %}">
                     {% csrf_token %}
@@ -55,31 +55,31 @@
                 <a class="home-feature primary" href="{% url 'channel_list' %}">
                     <span class="home-feature-icon">#</span>
                     <span class="home-feature-copy">
-                        <span class="home-feature-kicker">Kanaly</span>
+                        <span class="home-feature-kicker">Kanały</span>
                         <strong>Rozmowy grupowe</strong>
-                        <span>Publiczne pokoje tekstowe, obrazy i nagrywane glosowki.</span>
+                        <span>Publiczne pokoje tekstowe, obrazy i nagrywane głosówki.</span>
                     </span>
                 </a>
                 <a class="home-feature" href="{% url 'direct_conversation_list' %}">
                     <span class="home-feature-icon">@</span>
                     <span class="home-feature-copy">
                         <span class="home-feature-kicker">DM</span>
-                        <strong>Wiadomosci prywatne</strong>
-                        <span>Rozmowy 1 na 1 bez szukania po kanalach.</span>
+                        <strong>Wiadomości prywatne</strong>
+                        <span>Rozmowy 1 na 1 bez szukania po kanałach.</span>
                     </span>
                 </a>
                 <a class="home-feature" href="{% url 'profile' %}">
                     <span class="home-feature-icon">J</span>
                     <span class="home-feature-copy">
                         <span class="home-feature-kicker">Profil</span>
-                        <strong>Avatar, opis i haslo</strong>
+                        <strong>Avatar, opis i hasło</strong>
                         <span>Dostosuj konto i swoje dane w PyCord.</span>
                     </span>
                 </a>
             </div>
 
             <aside class="home-side-panel">
-                <h2 class="h5 fw-bold mb-3">Szybki dostep</h2>
+                <h2 class="h5 fw-bold mb-3">Szybki dostęp</h2>
                 <div class="home-side-actions">
                     {% if request.user.has_moderation_access %}
                         <a href="{% url 'moderation_panel' %}">Panel moderacji</a>
@@ -87,16 +87,16 @@
                     {% if request.user.has_admin_access %}
                         <a href="{% url 'admin_panel' %}">Centrum admina</a>
                     {% endif %}
-                    <a href="{% url 'channel_list' %}">Lista kanalow</a>
+                    <a href="{% url 'channel_list' %}">Lista kanałów</a>
                     <a href="{% url 'direct_conversation_list' %}">Lista DM</a>
                 </div>
                 <div class="home-mini-preview mt-4">
-                    <h2 class="h6 fw-bold mb-3">Ostatnia aktywnosc</h2>
+                    <h2 class="h6 fw-bold mb-3">Ostatnia aktywność</h2>
                     {% if latest_direct_message %}
                         <a class="home-activity-card" href="{{ latest_direct_message.conversation.get_absolute_url }}">
                             <span class="home-activity-kicker">Ostatni DM</span>
                             <strong>{{ latest_direct_message.author.username }}</strong>
-                            <span>{{ latest_direct_message.content|default:"[glosowka lub obraz]" }}</span>
+                            <span>{{ latest_direct_message.content|default:"[głosowka lub obraz]" }}</span>
                             <small>{{ latest_direct_message.created_at|date:"d.m.Y H:i" }}</small>
                         </a>
                     {% else %}
@@ -108,15 +108,15 @@
 
                     {% if latest_channel_message %}
                         <a class="home-activity-card" href="{{ latest_channel_message.channel.get_absolute_url }}">
-                            <span class="home-activity-kicker">Ostatnia wiadomosc z kanalu</span>
+                            <span class="home-activity-kicker">Ostatnia wiadomość z kanału</span>
                             <strong>#{{ latest_channel_message.channel.name }} · {{ latest_channel_message.author.username }}</strong>
-                            <span>{{ latest_channel_message.content|default:"[glosowka lub obraz]" }}</span>
+                            <span>{{ latest_channel_message.content|default:"[głosowka lub obraz]" }}</span>
                             <small>{{ latest_channel_message.created_at|date:"d.m.Y H:i" }}</small>
                         </a>
                     {% else %}
                         <div class="home-activity-card empty">
-                            <span class="home-activity-kicker">Ostatnia wiadomosc z kanalu</span>
-                            <strong>Brak nowych wiadomosci</strong>
+                            <span class="home-activity-kicker">Ostatnia wiadomość z kanału</span>
+                            <strong>Brak nowych wiadomości</strong>
                         </div>
                     {% endif %}
                 </div>
@@ -127,14 +127,14 @@
     <section class="home-hero">
         <div class="home-hero-copy">
             <span class="badge text-bg-info text-dark mb-3">PyCord</span>
-            <h1 class="display-5 fw-bold mb-3">Komunikator dla kanalow, DM i glosowek</h1>
+            <h1 class="display-5 fw-bold mb-3">Komunikator dla kanałów, DM i głosówek</h1>
             <p class="lead text-secondary mb-4">
-                Tworz kanaly tekstowe, rozmawiaj prywatnie, wysylaj obrazy i nagrywaj
-                wiadomosci glosowe prosto z przegladarki.
+                Twórz kanały tekstowe, rozmawiaj prywatnie, wysyłaj obrazy i nagrywaj
+                wiadomości głosowe prosto z przeglądarki.
             </p>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{% url 'register' %}" class="btn btn-info btn-lg text-dark">Utworz konto</a>
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Zaloguj sie</a>
+                <a href="{% url 'register' %}" class="btn btn-info btn-lg text-dark">Utwórz konto</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Zaloguj się</a>
             </div>
         </div>
 
@@ -152,14 +152,14 @@
                 </div>
                 <div class="message-bubble mb-2">
                     <span class="small text-info d-block">Maja</span>
-                    Nowy kanal projektowy jest gotowy.
+                    Nowy kanał projektowy jest gotowy.
                 </div>
                 <div class="message-bubble muted mb-2">
                     <span class="small text-warning d-block">Kuba</span>
-                    Wrzucilem obraz i glosowke do sprawdzenia.
+                    Wrzuciłem obraz i głosówkę do sprawdzenia.
                 </div>
                 <div class="home-preview-composer">
-                    <span>Napisz wiadomosc...</span>
+                    <span>Napisz wiadomość...</span>
                     <span class="home-preview-dot"></span>
                 </div>
             </div>

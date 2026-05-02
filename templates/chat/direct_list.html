@@ -6,16 +6,16 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <span class="badge text-bg-info text-dark mb-2">DM</span>
-        <h1 class="h3 fw-bold mb-1">Wiadomosci prywatne</h1>
-        <p class="text-secondary mb-0">Rozmowy 1 na 1 z innymi uzytkownikami.</p>
+        <h1 class="h3 fw-bold mb-1">Wiadomości prywatne</h1>
+        <p class="text-secondary mb-0">Rozmowy 1 na 1 z innymi użytkownikami.</p>
     </div>
 </div>
 
 <form class="search-bar mb-4" method="get" role="search">
-    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Szukaj uzytkownikow i rozmow" aria-label="Szukaj uzytkownikow i rozmow">
+    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Szukaj użytkowników i rozmów" aria-label="Szukaj użytkowników i rozmów">
     <button class="btn btn-outline-info" type="submit">Szukaj</button>
     {% if query %}
-        <a class="btn btn-outline-light" href="{% url 'direct_conversation_list' %}">Wyczysc</a>
+        <a class="btn btn-outline-light" href="{% url 'direct_conversation_list' %}">Wyczyść</a>
     {% endif %}
 </form>
 
@@ -23,8 +23,8 @@
     <div class="blocked-notice mb-4">
         <strong>Konto zablokowane</strong>
         <p class="mb-0">
-            Mozesz czytac istniejace rozmowy prywatne, ale rozpoczynanie nowych rozmow
-            i wysylanie wiadomosci jest wylaczone.
+            Możesz czytać istniejące rozmówy prywatne, ale rozpoczynanie nowych rozmów
+            i wysylanie wiadomości jest wyłączone.
         </p>
     </div>
 {% endif %}
@@ -32,7 +32,7 @@
 <div class="row g-4">
     <div class="col-lg-7">
         <section class="panel-section">
-            <h2 class="h5 fw-bold mb-3">Twoje rozmowy</h2>
+            <h2 class="h5 fw-bold mb-3">Twoje rozmówy</h2>
             <div class="stack-list">
                 {% for item in conversation_items %}
                     <a class="dm-row" href="{{ item.conversation.get_absolute_url }}" data-presence-user data-user-id="{{ item.other_user.id }}">
@@ -54,13 +54,13 @@
                                 {% if item.latest_message %}
                                     {{ item.latest_message.author.username }}: {{ item.latest_message.content|default:"[plik multimedialny]" }}
                                 {% else %}
-                                    Brak wiadomosci
+                                    Brak wiadomości
                                 {% endif %}
                             </span>
                         </span>
                     </a>
                 {% empty %}
-                    <p class="text-secondary mb-0">Nie masz jeszcze prywatnych rozmow.</p>
+                    <p class="text-secondary mb-0">Nie masz jeszcze prywatnych rozmów.</p>
                 {% endfor %}
             </div>
         </section>
@@ -68,7 +68,7 @@
 
     <div class="col-lg-5">
         <section class="panel-section">
-            <h2 class="h5 fw-bold mb-3">Uzytkownicy</h2>
+            <h2 class="h5 fw-bold mb-3">Użytkownicy</h2>
             <div class="stack-list">
                 {% for user in users %}
                     <div class="stack-item" data-presence-user data-user-id="{{ user.id }}">
@@ -100,7 +100,7 @@
                         {% endif %}
                     </div>
                 {% empty %}
-                    <p class="text-secondary mb-0">Brak innych uzytkownikow.</p>
+                    <p class="text-secondary mb-0">Brak innych użytkowników.</p>
                 {% endfor %}
             </div>
         </section>

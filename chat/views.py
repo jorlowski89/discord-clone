@@ -71,7 +71,7 @@ def channel_create(request):
             channel.created_by = request.user
             channel.save()
             channel.members.add(request.user)
-            messages.success(request, "Kanal zostal utworzony.")
+            messages.success(request, "Kanał został utwórzony.")
             return redirect(channel)
     else:
         form = ChannelForm()
@@ -84,7 +84,7 @@ def channel_create(request):
 def channel_join(request, slug):
     channel = get_object_or_404(Channel, slug=slug)
     channel.members.add(request.user)
-    messages.success(request, f"Dolaczono do kanalu #{channel.name}.")
+    messages.success(request, f"Dołączono do kanału #{channel.name}.")
     return redirect(channel)
 
 
@@ -110,7 +110,7 @@ def channel_detail(request, slug):
 
     if request.method == "POST":
         if request.user.is_blocked:
-            messages.error(request, "Twoje konto jest zablokowane i nie moze pisac.")
+            messages.error(request, "Twoje konto jest zablokowane i nie może pisac.")
             return redirect(channel)
 
         form = MessageForm(request.POST, request.FILES)
@@ -196,7 +196,7 @@ def direct_conversation_start(request, user_id):
     other_user = get_object_or_404(User, pk=user_id)
 
     if other_user == request.user:
-        messages.error(request, "Nie mozesz zaczac rozmowy z samym soba.")
+        messages.error(request, "Nie możesz zacząć rozmówy z samym sobą.")
         return redirect("direct_conversation_list")
 
     conversation, _created = DirectConversation.get_or_create_between(
@@ -213,14 +213,14 @@ def direct_conversation_detail(request, pk):
         pk=pk,
     )
     if not conversation.includes(request.user):
-        messages.error(request, "Nie masz dostepu do tej rozmowy.")
+        messages.error(request, "Nie masz dostępu do tej rozmówy.")
         return redirect("direct_conversation_list")
 
     other_user = conversation.other_user(request.user)
 
     if request.method == "POST":
         if request.user.is_blocked:
-            messages.error(request, "Twoje konto jest zablokowane i nie moze pisac.")
+            messages.error(request, "Twoje konto jest zablokowane i nie może pisac.")
             return redirect(conversation)
 
         form = DirectMessageForm(request.POST, request.FILES)
@@ -289,7 +289,7 @@ def toggle_direct_message_reaction(request, message_id):
         is_deleted=False,
     )
     if not message.conversation.includes(request.user):
-        messages.error(request, "Nie masz dostepu do tej rozmowy.")
+        messages.error(request, "Nie masz dostępu do tej rozmówy.")
         return redirect("direct_conversation_list")
 
     emoji = request.POST.get("emoji")

@@ -14,7 +14,7 @@ class ChannelForm(forms.ModelForm):
             "description": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Krotki opis kanalu",
+                    "placeholder": "Krótki opis kanału",
                 }
             ),
         }
@@ -29,7 +29,7 @@ class MessageForm(forms.ModelForm):
                 attrs={
                     "class": "form-control chat-input",
                     "rows": 2,
-                    "placeholder": "Napisz wiadomosc",
+                    "placeholder": "Napisz wiadomość",
                 }
             ),
             "image": forms.ClearableFileInput(
@@ -69,7 +69,7 @@ class DirectMessageForm(forms.ModelForm):
                 attrs={
                     "class": "form-control chat-input",
                     "rows": 2,
-                    "placeholder": "Napisz prywatna wiadomosc",
+                    "placeholder": "Napisz prywatną wiadomość",
                 }
             ),
             "image": forms.ClearableFileInput(
