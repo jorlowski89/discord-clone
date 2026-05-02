@@ -15,6 +15,9 @@ from chat.models import Channel, DirectMessage, Message
 def home(request):
     context = {}
     if request.user.is_authenticated:
+        context["can_claim_admin"] = not User.objects.filter(
+            Q(role=UserRole.ADMIN) | Q(is_superuser=True)
+        ).exists()
         context["latest_direct_message"] = (
             DirectMessage.objects.select_related(
                 "author",
@@ -60,6 +63,25 @@ def register_view(request):
         form = RegisterForm()
 
     return render(request, "accounts/register.html", {"form": form})
+
+
+@require_POST
+@login_required
+def claim_first_admin(request):
+    has_admin = User.objects.filter(
+        Q(role=UserRole.ADMIN) | Q(is_superuser=True)
+    ).exists()
+
+    if has_admin:
+        messages.error(request, "Administrator zostal juz utworzony.")
+        return redirect("home")
+
+    request.user.role = UserRole.ADMIN
+    request.user.is_staff = True
+    request.user.is_superuser = True
+    request.user.save(update_fields=["role", "is_staff", "is_superuser"])
+    messages.success(request, "Twoje konto zostalo pierwszym administratorem.")
+    return redirect("admin_panel")
 
 
 @require_POST

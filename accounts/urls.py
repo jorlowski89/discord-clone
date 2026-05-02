@@ -16,6 +16,7 @@ urlpatterns = [
     ),
     path("logout/", views.logout_view, name="logout"),
     path("presence/", views.presence_status, name="presence_status"),
+    path("claim-admin/", views.claim_first_admin, name="claim_first_admin"),
     path("register/", views.register_view, name="register"),
     path("profile/", views.profile_view, name="profile"),
     path("moderation/", views.moderation_panel, name="moderation_panel"),

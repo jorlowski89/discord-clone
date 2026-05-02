@@ -63,6 +63,42 @@ class AccountsFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(username="tester").exists())
 
+    def test_first_user_can_claim_admin_role(self):
+        user = User.objects.create_user(
+            username="firstadmin",
+            email="firstadmin@example.com",
+            password="StrongPassword123",
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse("claim_first_admin"))
+
+        user.refresh_from_db()
+        self.assertRedirects(response, reverse("admin_panel"))
+        self.assertEqual(user.role, "admin")
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+
+    def test_admin_claim_is_blocked_when_admin_exists(self):
+        User.objects.create_user(
+            username="existingadmin",
+            email="existingadmin@example.com",
+            password="StrongPassword123",
+            role="admin",
+        )
+        user = User.objects.create_user(
+            username="lateuser",
+            email="lateuser@example.com",
+            password="StrongPassword123",
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse("claim_first_admin"))
+
+        user.refresh_from_db()
+        self.assertRedirects(response, reverse("home"))
+        self.assertEqual(user.role, "user")
+
     def test_user_online_status_uses_last_seen(self):
         user = User.objects.create_user(
             username="statususer",

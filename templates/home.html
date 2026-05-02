@@ -37,6 +37,19 @@
             </div>
         {% endif %}
 
+        {% if can_claim_admin %}
+            <div class="blocked-notice">
+                <strong>Brak administratora</strong>
+                <p class="mb-3">
+                    To konto moze zostac pierwszym administratorem tej instalacji.
+                </p>
+                <form method="post" action="{% url 'claim_first_admin' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-warning btn-sm" type="submit">Ustaw jako administratora</button>
+                </form>
+            </div>
+        {% endif %}
+
         <div class="home-layout">
             <div class="home-primary-actions">
                 <a class="home-feature primary" href="{% url 'channel_list' %}">
